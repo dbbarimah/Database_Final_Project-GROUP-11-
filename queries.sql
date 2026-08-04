@@ -1,0 +1,6 @@
+/* The purpose of this file is to create the advanced queries for the database (Phase 6).
+5 views
+3 stored procedures
+2 user-defined functions
+3 triggers that implement business rules
+*/
