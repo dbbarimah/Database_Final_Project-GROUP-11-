@@ -1,0 +1,1 @@
+-- The purpose of this file is to create the tables of the database.
