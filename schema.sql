@@ -1,1 +1,1 @@
--- The purpose of this file is to create the tables of the database.
+-- The purpose of this file is to create the tables of the database (Phase 4).
