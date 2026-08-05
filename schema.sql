@@ -3,13 +3,15 @@ Enforce constraints
 Add indexes
 Add sequences
 */
+MariaDB [(none)]> CREATE DATABASE Group11_FinalProject;
+Query OK, 1 row affected (0.001 sec)
 
 
 MariaDB [(none)]> USE Group11_FinalProject;
 Database changed
 
   
-MariaDB [Group11_FinalProject]> CREATE TABLE DEPARTMENT(
+MariaDB [Group11_FinalProject]> CREATE TABLE Department(
     -> DepartmentID INT PRIMARY KEY AUTO_INCREMENT,
     -> DeptCode VARCHAR(10) NOT NULL UNIQUE,
     -> DeptName VARCHAR(100) NOT NULL
@@ -17,7 +19,7 @@ MariaDB [Group11_FinalProject]> CREATE TABLE DEPARTMENT(
 Query OK, 0 rows affected (0.035 sec)
 
   
-MariaDB [Group11_FinalProject]> CREATE TABLE STAFF(
+MariaDB [Group11_FinalProject]> CREATE TABLE Staff(
     -> StaffID INT AUTO_INCREMENT PRIMARY KEY,
     -> Fname VARCHAR(50) NOT NULL,
     -> Lname VARCHAR(50) NOT NULL,
@@ -37,7 +39,7 @@ Query OK, 0 rows affected (0.050 sec)
 Records: 0  Duplicates: 0  Warnings: 0
 
   
-MariaDB [Group11_FinalProject]> CREATE TABLE STUDENT(
+MariaDB [Group11_FinalProject]> CREATE TABLE Student(
     -> StudentID INT PRIMARY KEY AUTO_INCREMENT,
     -> Fname VARCHAR(50) NOT NULL,
     -> Lname VARCHAR(50) NOT NULL,
@@ -49,7 +51,7 @@ MariaDB [Group11_FinalProject]> CREATE TABLE STUDENT(
 Query OK, 0 rows affected (0.027 sec)
 
 
-MariaDB [Group11_FinalProject]> CREATE TABLE COURSE(                                                         -> CourseID INT AUTO_INCREMENT PRIMARY KEY,                                                              -> CourseCode VARCHAR(10) NOT NULL UNIQUE,
+MariaDB [Group11_FinalProject]> CREATE TABLE Course(                                                         -> CourseID INT AUTO_INCREMENT PRIMARY KEY,                                                              -> CourseCode VARCHAR(10) NOT NULL UNIQUE,
     -> CourseTitle VARCHAR(150) NOT NULL,
     -> CreditHours DECIMAL(5,2) NOT NULL,
     -> DepartmentID INT NOT NULL,
@@ -78,7 +80,7 @@ MariaDB [Group11_FinalProject]> CREATE TABLE Enrollment(
 Query OK, 0 rows affected (0.033 sec)
 
   
-MariaDB [Group11_FinalProject]> CREATE TABLE ATTENDANCE(                                                     -> AttendanceID INT PRIMARY KEY AUTO_INCREMENT,
+MariaDB [Group11_FinalProject]> CREATE TABLE Attendance(                                                     -> AttendanceID INT PRIMARY KEY AUTO_INCREMENT,
     -> EnrollmentID INT NOT NULL,
     -> SessionDate DATE NOT NULL,
     -> AttendanceStatus VARCHAR(10) CHECK (AttendanceStatus IN ('Present','Absent')),                        -> FOREIGN KEY (EnrollmentID) REFERENCES Enrollment(EnrollmentID)
@@ -86,7 +88,7 @@ MariaDB [Group11_FinalProject]> CREATE TABLE ATTENDANCE(                        
 Query OK, 0 rows affected (0.026 sec)
 
 
-MariaDB [Group11_FinalProject]> CREATE TABLE ASSESSMENT(
+MariaDB [Group11_FinalProject]> CREATE TABLE Assessment(
     -> AssessmentID INT PRIMARY KEY AUTO_INCREMENT,
     -> CourseID INT NOT NULL,
     -> AssessmentType VARCHAR(20) NOT NULL CHECK(AssessmentType IN ('Quiz','Assignment','MidSemester','Exam')),
@@ -99,12 +101,14 @@ MariaDB [Group11_FinalProject]> CREATE TABLE ASSESSMENT(
 Query OK, 0 rows affected (0.030 sec)
 
   
-MariaDB [Group11_FinalProject]> CREATE TABLE GRADE(
+MariaDB [Group11_FinalProject]> CREATE TABLE Grade(
     -> GradeID INT PRIMARY KEY AUTO_INCREMENT,
     -> EnrollmentID INT NOT NULL,
     -> AssessmentID INT NOT NULL,
     -> ScoreObtained DECIMAL(5,2) NOT NULL CHECK (ScoreObtained >= 0),
     -> DateRecorded DATE NOT NULL
+    -> FOREIGN KEY (EnrollmentID) REFERENCES Enrollment(EnrollmentID),
+    -> FOREIGN KEY (AssessmentID) REFERENCES Assessment(AssessmentID)
     -> );
 Query OK, 0 rows affected (0.028 sec)
 
