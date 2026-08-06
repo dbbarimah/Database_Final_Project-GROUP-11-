@@ -237,16 +237,3 @@ INSERT INTO Grade (GradeID, EnrollmentID, AssessmentID, ScoreObtained, DateRecor
 (28, 28, 7,  36.00, '2026-03-18'),
 (29, 29, 13, 19.00, '2026-02-28'),
 (30, 30, 22, 16.00, '2026-03-02');
-
-COMMIT;
-
-/* Optional checks after importing the data. */
-SELECT COUNT(*) AS DepartmentCount FROM Department;
-SELECT COUNT(*) AS StaffCount FROM Staff;
-SELECT COUNT(*) AS StudentCount FROM Student;
-SELECT COUNT(*) AS CourseCount FROM Course;
-SELECT COUNT(*) AS TeachingAssignmentCount FROM Teaching_Assignment;
-SELECT COUNT(*) AS EnrollmentCount FROM Enrollment;
-SELECT COUNT(*) AS AttendanceCount FROM Attendance;
-SELECT COUNT(*) AS AssessmentCount FROM Assessment;
-SELECT COUNT(*) AS GradeCount FROM Grade;
