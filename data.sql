@@ -5,20 +5,15 @@ Does not need to be real or existing data.
 */
 USE Group11_FinalProject;
 
-/* =====================================================
-   1. DEPARTMENT
-   ===================================================== */
+-- Inserting Data into the Department Table
 INSERT INTO Department (DepartmentID, DeptCode, DeptName, HeadID) VALUES
 (1, 'CS',  'Computer Science', NULL),
 (2, 'BUS', 'Business Administration', NULL),
 (3, 'ENG', 'Engineering', NULL),
 (4, 'SOC', 'Social Sciences', NULL);
 
-/* =====================================================
-   2. STAFF
-   ===================================================== */
-INSERT INTO Staff
-(StaffID, Fname, Lname, StaffEmail, StaffPhone, Role, DepartmentID) VALUES
+-- Inserting Data into the Staff Table
+INSERT INTO Staff (StaffID, Fname, Lname, StaffEmail, StaffPhone, Role, DepartmentID) VALUES
 (1, 'Kwame',   'Mensah',    'kwame.mensah@ashesi.edu.gh',   '0241111001', 'Lecturer',       1),
 (2, 'Akosua',  'Boateng',   'akosua.boateng@ashesi.edu.gh', '0241111002', 'Lecturer',       2),
 (3, 'Daniel',  'Asare',     'daniel.asare@ashesi.edu.gh',    '0241111003', 'Lecturer',       3),
@@ -38,11 +33,8 @@ UPDATE Department SET HeadID = 2 WHERE DepartmentID = 2;
 UPDATE Department SET HeadID = 3 WHERE DepartmentID = 3;
 UPDATE Department SET HeadID = 4 WHERE DepartmentID = 4;
 
-/* =====================================================
-   3. STUDENT — 30 entries
-   ===================================================== */
-INSERT INTO Student
-(StudentID, Fname, Lname, StudentPhone, StudentEmail, DepartmentID) VALUES
+-- Inserting Data into the Student
+INSERT INTO Student (StudentID, Fname, Lname, StudentPhone, StudentEmail, DepartmentID) VALUES
 (1,  'Ama',       'Amoako',      '0202000001', 'ama.amoako@ashesi.edu.gh',       1),
 (2,  'Kojo',      'Appiah',      '0202000002', 'kojo.appiah@ashesi.edu.gh',      1),
 (3,  'Yaa',       'Bonsu',       '0202000003', 'yaa.bonsu@ashesi.edu.gh',        1),
@@ -74,11 +66,8 @@ INSERT INTO Student
 (29, 'Belinda',   'Acquah',      '0202000029', 'belinda.acquah@ashesi.edu.gh',   4),
 (30, 'Francis',   'Tandoh',      '0202000030', 'francis.tandoh@ashesi.edu.gh',   4);
 
-/* =====================================================
-   4. COURSE
-   ===================================================== */
-INSERT INTO Course
-(CourseID, CourseCode, CourseTitle, CreditHours, DepartmentID) VALUES
+-- Inserting Data into the Course Table
+INSERT INTO Course (CourseID, CourseCode, CourseTitle, CreditHours, DepartmentID) VALUES
 (1,  'CS101',  'Introduction to Computing',        3.00, 1),
 (2,  'CS201',  'Data Structures and Algorithms',   3.00, 1),
 (3,  'CS301',  'Database Systems',                  3.00, 1),
@@ -92,11 +81,8 @@ INSERT INTO Course
 (11, 'SOC210', 'Research Methods',                  3.00, 4),
 (12, 'SOC320', 'Development Studies',               3.00, 4);
 
-/* =====================================================
-   5. TEACHING ASSIGNMENT
-   ===================================================== */
-INSERT INTO Teaching_Assignment
-(AssignmentID, CourseID, AssigneeID, Semester) VALUES
+-- Inserting Data into the Teaching_Assignment Table
+INSERT INTO Teaching_Assignment (AssignmentID, CourseID, AssigneeID, Semester) VALUES
 (1,  1,  1, '1'),
 (2,  2,  9, '1'),
 (3,  3,  1, '1'),
@@ -114,49 +100,41 @@ INSERT INTO Teaching_Assignment
 (15, 8,  7, '1'),
 (16, 11, 8, '1');
 
-/* =====================================================
-   6. ENROLLMENT — 30 entries
-   Note: The supplied schema does not contain StudentID in this table,
-   so these rows follow the schema exactly as provided.
-   ===================================================== */
-INSERT INTO Enrollment
-(EnrollmentID, CourseID, Semester, EnrollmentDate, EnrollmentStatus) VALUES
-(1,  1,  '1', '2026-01-10', 'Active'),
-(2,  1,  '1', '2026-01-10', 'Active'),
-(3,  1,  '1', '2026-01-11', 'Active'),
-(4,  2,  '1', '2026-01-11', 'Active'),
-(5,  2,  '1', '2026-01-12', 'Active'),
-(6,  2,  '1', '2026-01-12', 'Active'),
-(7,  3,  '1', '2026-01-13', 'Active'),
-(8,  3,  '1', '2026-01-13', 'Active'),
-(9,  3,  '1', '2026-01-14', 'Active'),
-(10, 4,  '1', '2026-01-10', 'Active'),
-(11, 4,  '1', '2026-01-11', 'Active'),
-(12, 5,  '1', '2026-01-12', 'Active'),
-(13, 5,  '1', '2026-01-13', 'Active'),
-(14, 6,  '2', '2026-06-15', 'Active'),
-(15, 6,  '2', '2026-06-16', 'Active'),
-(16, 7,  '1', '2026-01-10', 'Active'),
-(17, 7,  '1', '2026-01-11', 'Active'),
-(18, 8,  '1', '2026-01-12', 'Active'),
-(19, 8,  '1', '2026-01-13', 'Active'),
-(20, 9,  '2', '2026-06-15', 'Active'),
-(21, 9,  '2', '2026-06-16', 'Active'),
-(22, 10, '1', '2026-01-10', 'Active'),
-(23, 10, '1', '2026-01-11', 'Active'),
-(24, 11, '1', '2026-01-12', 'Active'),
-(25, 11, '1', '2026-01-13', 'Active'),
-(26, 12, '2', '2026-06-15', 'Active'),
-(27, 12, '2', '2026-06-16', 'Active'),
-(28, 3,  '1', '2026-01-15', 'Active'),
-(29, 5,  '1', '2026-01-15', 'Active'),
-(30, 8,  '1', '2026-01-15', 'Active');
+-- Inserting Data into the Enrollment Table
+INSERT INTO Enrollment (EnrollmentID, StudentID, CourseID, Semester, EnrollmentDate, EnrollmentStatus) VALUES
+(1,  1,  1,  '1', '2026-01-10', 'Active'),
+(2,  2,  1,  '1', '2026-01-10', 'Active'),
+(3,  3,  1,  '1', '2026-01-11', 'Active'),
+(4,  4,  2,  '1', '2026-01-11', 'Active'),
+(5,  5,  2,  '1', '2026-01-12', 'Active'),
+(6,  6,  2,  '1', '2026-01-12', 'Active'),
+(7,  7,  3,  '1', '2026-01-13', 'Active'),
+(8,  8,  3,  '1', '2026-01-13', 'Active'),
+(9,  9,  3,  '1', '2026-01-14', 'Active'),
+(10, 10, 4,  '1', '2026-01-10', 'Active'),
+(11, 11, 4,  '1', '2026-01-11', 'Active'),
+(12, 12, 5,  '1', '2026-01-12', 'Active'),
+(13, 13, 5,  '1', '2026-01-13', 'Active'),
+(14, 14, 6,  '2', '2026-06-15', 'Active'),
+(15, 15, 6,  '2', '2026-06-16', 'Active'),
+(16, 16, 7,  '1', '2026-01-10', 'Active'),
+(17, 17, 7,  '1', '2026-01-11', 'Active'),
+(18, 18, 8,  '1', '2026-01-12', 'Active'),
+(19, 19, 8,  '1', '2026-01-13', 'Active'),
+(20, 20, 9,  '2', '2026-06-15', 'Active'),
+(21, 21, 9,  '2', '2026-06-16', 'Active'),
+(22, 22, 10, '1', '2026-01-10', 'Active'),
+(23, 23, 10, '1', '2026-01-11', 'Active'),
+(24, 24, 11, '1', '2026-01-12', 'Active'),
+(25, 25, 11, '1', '2026-01-13', 'Active'),
+(26, 26, 12, '2', '2026-06-15', 'Active'),
+(27, 27, 12, '2', '2026-06-16', 'Active'),
+(28, 28, 3,  '1', '2026-01-15', 'Active'),
+(29, 29, 5,  '1', '2026-01-15', 'Active'),
+(30, 30, 8,  '1', '2026-01-15', 'Active');
 
-/* =====================================================
-   7. ATTENDANCE — 30 entries
-   ===================================================== */
-INSERT INTO Attendance
-(AttendanceID, EnrollmentID, SessionDate, AttendanceStatus) VALUES
+-- Inserting Data into the Attendance Table
+INSERT INTO Attendance (AttendanceID, EnrollmentID, SessionDate, AttendanceStatus) VALUES
 (1,  1,  '2026-02-02', 'Present'),
 (2,  2,  '2026-02-02', 'Present'),
 (3,  3,  '2026-02-02', 'Absent'),
@@ -188,11 +166,8 @@ INSERT INTO Attendance
 (29, 29, '2026-02-13', 'Present'),
 (30, 30, '2026-02-13', 'Present');
 
-/* =====================================================
-   8. ASSESSMENT
-   ===================================================== */
-INSERT INTO Assessment
-(AssessmentID, CourseID, AssessmentType, MaxScore, WeightPercent, DueDate, DateUploaded) VALUES
+-- Inserting Data into the Assessment Table
+INSERT INTO Assessment (AssessmentID, CourseID, AssessmentType, MaxScore, WeightPercent, DueDate, DateUploaded) VALUES
 (1,  1,  'Quiz',        20.00, 20.00, '2026-02-20', '2026-02-01'),
 (2,  1,  'Assignment',  30.00, 30.00, '2026-03-10', '2026-02-15'),
 (3,  1,  'Exam',       100.00, 50.00, '2026-05-20', '2026-05-01'),
@@ -230,12 +205,8 @@ INSERT INTO Assessment
 (35, 12, 'MidSemester', 50.00, 30.00, '2026-09-28', '2026-09-02'),
 (36, 12, 'Exam',       100.00, 40.00, '2026-11-28', '2026-11-01');
 
-/* =====================================================
-   9. GRADE — 30 entries
-   Each grade uses an assessment belonging to the same course as its enrollment.
-   ===================================================== */
-INSERT INTO Grade
-(GradeID, EnrollmentID, AssessmentID, ScoreObtained, DateRecorded) VALUES
+-- Inserting Data into the Grade Table
+INSERT INTO Grade (GradeID, EnrollmentID, AssessmentID, ScoreObtained, DateRecorded) VALUES
 (1,  1,  1,  16.00, '2026-02-22'),
 (2,  2,  1,  14.00, '2026-02-22'),
 (3,  3,  1,  18.00, '2026-02-22'),
