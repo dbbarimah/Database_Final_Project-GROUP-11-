@@ -1,3 +1,6 @@
+/* The purpose of this file is to define the SQL Data Definition Language
+to create the tables, contraints, indexes, and sequences/idenity columns */
+
 -- Creating the Database
 CREATE DATABASE IF NOT EXISTS Group11_FinalProject;
 USE Group11_FinalProject;
@@ -100,3 +103,31 @@ CREATE TABLE Grade(
     FOREIGN KEY (EnrollmentID) REFERENCES Enrollment(EnrollmentID),
     FOREIGN KEY (AssessmentID) REFERENCES Assessment(AssessmentID)
 );
+
+-- Sequences for the Tables
+-- Student Table
+CREATE INDEX idx_student_department ON Student(DepartmentID);
+
+-- Staff Table
+CREATE INDEX idx_staff_department ON Staff(DepartmentID);
+
+-- Course Table
+CREATE INDEX idx_course_department ON Course(DepartmentID);
+
+-- Teaching_Assignment Table
+CREATE INDEX idx_teaching_course ON Teaching_Assignment(CourseID);
+CREATE INDEX idx_teaching_assignee ON Teaching_Assignment(AssigneeID);
+
+-- Enrollment Table
+CREATE INDEX idx_enrollment_student ON Enrollment(StudentID);
+CREATE INDEX idx_enrollment_course ON Enrollment(CourseID);
+
+-- Attendance Table
+CREATE INDEX idx_attendance_enrollment ON Attendance(EnrollmentID);
+
+-- Assessment Table
+CREATE INDEX idx_assessment_course ON Assessment(CourseID);
+
+-- Grade Table
+CREATE INDEX idx_grade_enrollment ON Grade(EnrollmentID);
+CREATE INDEX idx_grade_assessment ON Grade(AssessmentID);
