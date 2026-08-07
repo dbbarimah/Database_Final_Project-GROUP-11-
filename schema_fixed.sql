@@ -1,5 +1,6 @@
 /* The purpose of this file is to define the SQL Data Definition Language
-to create the tables, contraints, indexes, and sequences/idenity columns */
+to create the tables, contraints, indexes, and sequences/idenity columns 
+(Phase 4)*/
 
 -- Creating the Database
 CREATE DATABASE IF NOT EXISTS Group11_FinalProject;
