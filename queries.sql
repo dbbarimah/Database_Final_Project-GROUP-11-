@@ -213,7 +213,7 @@ DELIMITER ;
 
 
 -- 3 Triggers
--- Trigger 1:
+-- Trigger 1: Prevents a student from being enrolled in the same course twice in the same semester.
 DROP TRIGGER IF EXISTS trg_PreventDuplicateEnrollment;
 DELIMITER $$
 CREATE TRIGGER trg_PreventDuplicateEnrollment
@@ -233,6 +233,7 @@ BEGIN
 END$$
 DELIMITER ;
 
+-- Trigger 2: Prevents a grade from being recorded if it exceeds the maximum score for that assessment.
 DROP TRIGGER IF EXISTS trg_ValidateGradeScore;
 DELIMITER $$
 CREATE TRIGGER trg_ValidateGradeScore
@@ -253,6 +254,7 @@ BEGIN
 END$$
 DELIMITER ;
 
+-- Trigger 3: Updates a student's enrollment status to Completed once their exam grade has been recorded
 DROP TRIGGER IF EXISTS trg_CompleteEnrollmentOnExam;
 DELIMITER $$
 CREATE TRIGGER trg_CompleteEnrollmentOnExam
@@ -274,13 +276,6 @@ BEGIN
 END$$
 DELIMITER ;
 
-
-/* 
-   USAGE EXAMPLES (commented out, for manual testing only)
-   
-CALL sp_EnrollStudent(1, 2, '1', CURDATE());
-CALL sp_RecordGrade(1, 3, 45.00);
-CALL sp_GetStudentTranscript(1);
 SELECT fn_CourseWeightedAverage(1);
 SELECT fn_AttendanceRate(1);
 */
