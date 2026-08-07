@@ -1,8 +1,8 @@
 USE Group11_FinalProject;
 
-/* =========================================================
+/* 
    STORED PROCEDURES (3)
-   ========================================================= */
+   */
 
 DROP PROCEDURE IF EXISTS sp_EnrollStudent;
 DELIMITER $$
@@ -76,9 +76,9 @@ END$$
 DELIMITER ;
 
 
-/* =========================================================
+/* 
    USER-DEFINED FUNCTIONS (2)
-   ========================================================= */
+   */
 
 DROP FUNCTION IF EXISTS fn_CourseWeightedAverage;
 DELIMITER $$
@@ -123,9 +123,9 @@ END$$
 DELIMITER ;
 
 
-/* =========================================================
+/* 
    TRIGGERS (3) -- business rules
-   ========================================================= */
+    */
 
 DROP TRIGGER IF EXISTS trg_PreventDuplicateEnrollment;
 DELIMITER $$
@@ -188,9 +188,9 @@ END$$
 DELIMITER ;
 
 
-/* =========================================================
-   USAGE EXAMPLES (commented out -- for manual testing only)
-   =========================================================
+/* 
+   USAGE EXAMPLES (commented out, for manual testing only)
+   
 CALL sp_EnrollStudent(1, 2, '1', CURDATE());
 CALL sp_RecordGrade(1, 3, 45.00);
 CALL sp_GetStudentTranscript(1);
