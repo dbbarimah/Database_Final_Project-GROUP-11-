@@ -1,9 +1,14 @@
 USE Group11_FinalProject;
 
-/* 
-   VIEWS (5) -- Phase 6
-    */
+/* The purpose of this file is to implement the advanced SQL queries
+5 views
+3 stored procedures
+2 user-defined functions
+3 triggers implemeneting business rules
+*/
 
+-- 5 Views
+-- View 1: Calculates the Student's weighted average score for each course they enrolled in
 DROP VIEW IF EXISTS vw_StudentCourseAverage;
 CREATE VIEW vw_StudentCourseAverage AS
 SELECT
@@ -22,6 +27,7 @@ JOIN Grade g ON g.EnrollmentID = e.EnrollmentID
 JOIN Assessment a ON a.AssessmentID = g.AssessmentID
 GROUP BY e.EnrollmentID, e.StudentID, s.Fname, s.Lname, e.CourseID, c.CourseTitle, e.Semester;
 
+-- View 2: Shows how many students are enrolled in each course per semester
 DROP VIEW IF EXISTS vw_CourseEnrollmentSummary;
 CREATE VIEW vw_CourseEnrollmentSummary AS
 SELECT
@@ -34,18 +40,21 @@ FROM Course c
 JOIN Enrollment e ON e.CourseID = c.CourseID
 GROUP BY c.CourseID, c.CourseCode, c.CourseTitle, e.Semester;
 
+-- View 3: Shows how many Courses each Staff member is assigned to per semester
 DROP VIEW IF EXISTS vw_StaffTeachingLoad;
 CREATE VIEW vw_StaffTeachingLoad AS
 SELECT
     st.StaffID,
     st.Fname,
     st.Lname,
+    st.Role,
     ta.Semester,
     COUNT(ta.AssignmentID) AS CoursesAssigned
 FROM Staff st
 JOIN Teaching_Assignment ta ON ta.AssigneeID = st.StaffID
-GROUP BY st.StaffID, st.Fname, st.Lname, ta.Semester;
+GROUP BY st.StaffID, st.Fname, st.Lname, st.Role, ta.Semester;
 
+-- View 4: Shows the attendance record for each enrolled student per course
 DROP VIEW IF EXISTS vw_AttendanceSummary;
 CREATE VIEW vw_AttendanceSummary AS
 SELECT
@@ -59,6 +68,7 @@ FROM Enrollment e
 JOIN Attendance att ON att.EnrollmentID = e.EnrollmentID
 GROUP BY e.EnrollmentID, e.StudentID, e.CourseID;
 
+-- View 5: Gives a summary of each department
 DROP VIEW IF EXISTS vw_DepartmentOverview;
 CREATE VIEW vw_DepartmentOverview AS
 SELECT
@@ -73,30 +83,9 @@ FROM Department d
 LEFT JOIN Staff hs ON hs.StaffID = d.HeadID;
 
 
-/* 
-   USAGE EXAMPLES (for manual testing only)
-   
-SELECT * FROM vw_StudentCourseAverage LIMIT 10;
-SELECT * FROM vw_CourseEnrollmentSummary;
-SELECT * FROM vw_StaffTeachingLoad;
-SELECT * FROM vw_AttendanceSummary LIMIT 10;
-SELECT * FROM vw_DepartmentOverview;
-*/
 
-
-
-
-
-
-
-
-
-USE Group11_FinalProject;
-
-/* 
-   STORED PROCEDURES (3)
-   */
-
+-- 3 Stored Procedures
+-- Procedure 1: Enrolls a student into a course
 DROP PROCEDURE IF EXISTS sp_EnrollStudent;
 DELIMITER $$
 CREATE PROCEDURE sp_EnrollStudent(
@@ -122,6 +111,7 @@ BEGIN
 END$$
 DELIMITER ;
 
+-- Procedure 2: Records a student's score for a specific assessment
 DROP PROCEDURE IF EXISTS sp_RecordGrade;
 DELIMITER $$
 CREATE PROCEDURE sp_RecordGrade(
@@ -147,6 +137,7 @@ BEGIN
 END$$
 DELIMITER ;
 
+-- Procedure 3: Takes in a StudentID and returns their full academic record
 DROP PROCEDURE IF EXISTS sp_GetStudentTranscript;
 DELIMITER $$
 CREATE PROCEDURE sp_GetStudentTranscript(IN p_StudentID INT)
@@ -169,13 +160,12 @@ END$$
 DELIMITER ;
 
 
-/* 
-   USER-DEFINED FUNCTIONS (2)
-   */
 
+-- 2 User-Defined Functions
+-- User-Defined Function 1: Calculates a Student's Weighted Average Score in a specific Course
 DROP FUNCTION IF EXISTS fn_CourseWeightedAverage;
 DELIMITER $$
-CREATE FUNCTION fn_CourseWeightedAverage(p_EnrollmentID INT)
+CREATE FUNCTION fn_CourseWeightedAverage(p_StudentID INT, p_CourseID INT)
 RETURNS DECIMAL(5,2)
 DETERMINISTIC
 READS SQL DATA
@@ -186,15 +176,18 @@ BEGIN
     INTO v_Average
     FROM Grade g
     JOIN Assessment a ON a.AssessmentID = g.AssessmentID
-    WHERE g.EnrollmentID = p_EnrollmentID;
+    JOIN Enrollment e ON e.EnrollmentID = g.EnrollmentID
+    WHERE e.StudentID = p_StudentID
+      AND e.CourseID = p_CourseID;
 
     RETURN IFNULL(v_Average, 0.00);
 END$$
 DELIMITER ;
 
+-- User-Defined Function 2: Calculates the Attendance Rate for a Specific Course
 DROP FUNCTION IF EXISTS fn_AttendanceRate;
 DELIMITER $$
-CREATE FUNCTION fn_AttendanceRate(p_EnrollmentID INT)
+CREATE FUNCTION fn_AttendanceRate(p_StudentID INT, p_CourseID INT)
 RETURNS DECIMAL(5,2)
 DETERMINISTIC
 READS SQL DATA
@@ -202,10 +195,12 @@ BEGIN
     DECLARE v_Total INT;
     DECLARE v_Present INT;
 
-    SELECT COUNT(*), SUM(CASE WHEN AttendanceStatus = 'Present' THEN 1 ELSE 0 END)
+    SELECT COUNT(*), SUM(CASE WHEN att.AttendanceStatus = 'Present' THEN 1 ELSE 0 END)
     INTO v_Total, v_Present
-    FROM Attendance
-    WHERE EnrollmentID = p_EnrollmentID;
+    FROM Attendance att
+    JOIN Enrollment e ON e.EnrollmentID = att.EnrollmentID
+    WHERE e.StudentID = p_StudentID
+      AND e.CourseID = p_CourseID;
 
     IF v_Total = 0 OR v_Total IS NULL THEN
         RETURN 0.00;
@@ -216,10 +211,9 @@ END$$
 DELIMITER ;
 
 
-/* 
-   TRIGGERS (3) -- business rules
-    */
 
+-- 3 Triggers
+-- Trigger 1:
 DROP TRIGGER IF EXISTS trg_PreventDuplicateEnrollment;
 DELIMITER $$
 CREATE TRIGGER trg_PreventDuplicateEnrollment
