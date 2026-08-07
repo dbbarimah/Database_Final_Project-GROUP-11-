@@ -1,12 +1,15 @@
+-- Creating the Database
 CREATE DATABASE IF NOT EXISTS Group11_FinalProject;
 USE Group11_FinalProject;
 
+-- Creating the Department Table
 CREATE TABLE Department(
     DepartmentID INT PRIMARY KEY AUTO_INCREMENT,
     DeptCode VARCHAR(10) NOT NULL UNIQUE,
     DeptName VARCHAR(100) NOT NULL
 );
 
+-- Creating the Staff Table
 CREATE TABLE Staff(
     StaffID INT AUTO_INCREMENT PRIMARY KEY,
     Fname VARCHAR(50) NOT NULL,
@@ -18,10 +21,12 @@ CREATE TABLE Staff(
     FOREIGN KEY (DepartmentID) REFERENCES Department(DepartmentID)
 );
 
+-- Altering the Department Table to contain the Heads of Department who also serve as Staff
 ALTER TABLE Department
     ADD COLUMN HeadID INT,
     ADD FOREIGN KEY (HeadID) REFERENCES Staff(StaffID);
 
+-- Creating the Student Table
 CREATE TABLE Student(
     StudentID INT PRIMARY KEY AUTO_INCREMENT,
     Fname VARCHAR(50) NOT NULL,
@@ -32,6 +37,7 @@ CREATE TABLE Student(
     FOREIGN KEY (DepartmentID) REFERENCES Department(DepartmentID)
 );
 
+-- Creating the Course Table
 CREATE TABLE Course(
     CourseID INT AUTO_INCREMENT PRIMARY KEY,
     CourseCode VARCHAR(10) NOT NULL UNIQUE,
@@ -41,6 +47,7 @@ CREATE TABLE Course(
     FOREIGN KEY (DepartmentID) REFERENCES Department(DepartmentID)
 );
 
+-- Creating the Teaching_Assignment Table
 CREATE TABLE Teaching_Assignment(
     AssignmentID INT PRIMARY KEY AUTO_INCREMENT,
     CourseID INT NOT NULL,
@@ -50,6 +57,7 @@ CREATE TABLE Teaching_Assignment(
     FOREIGN KEY (AssigneeID) REFERENCES Staff(StaffID)
 );
 
+-- Creating the Enrollment Table
 CREATE TABLE Enrollment(
     EnrollmentID INT PRIMARY KEY AUTO_INCREMENT,
     StudentID INT NOT NULL,
@@ -61,6 +69,7 @@ CREATE TABLE Enrollment(
     FOREIGN KEY (CourseID) REFERENCES Course(CourseID)
 );
 
+-- Creating the Attendance Table
 CREATE TABLE Attendance(
     AttendanceID INT PRIMARY KEY AUTO_INCREMENT,
     EnrollmentID INT NOT NULL,
@@ -69,6 +78,7 @@ CREATE TABLE Attendance(
     FOREIGN KEY (EnrollmentID) REFERENCES Enrollment(EnrollmentID)
 );
 
+-- Creating the Assessment Table
 CREATE TABLE Assessment(
     AssessmentID INT PRIMARY KEY AUTO_INCREMENT,
     CourseID INT NOT NULL,
@@ -80,6 +90,7 @@ CREATE TABLE Assessment(
     FOREIGN KEY (CourseID) REFERENCES Course(CourseID)
 );
 
+-- Creating the Grade Table
 CREATE TABLE Grade(
     GradeID INT PRIMARY KEY AUTO_INCREMENT,
     EnrollmentID INT NOT NULL,
