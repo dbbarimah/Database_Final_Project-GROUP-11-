@@ -27,7 +27,7 @@ INSERT INTO Staff (StaffID, Fname, Lname, StaffEmail, StaffPhone, Role, Departme
 (11,'Grace',   'Tetteh',    'grace.tetteh@ashesi.edu.gh',    '0241111011', 'Lecturer',       3),
 (12,'Peter',   'Quaye',     'peter.quaye@ashesi.edu.gh',     '0241111012', 'Lecturer',       4);
 
-/* Assign one lecturer as the head of each department. */
+-- Assign one lecturer as the head of each department.
 UPDATE Department SET HeadID = 1 WHERE DepartmentID = 1;
 UPDATE Department SET HeadID = 2 WHERE DepartmentID = 2;
 UPDATE Department SET HeadID = 3 WHERE DepartmentID = 3;
