@@ -1,8 +1,8 @@
 USE Group11_FinalProject;
 
-/* =========================================================
+/* 
    VIEWS (5) -- Phase 6
-   ========================================================= */
+    */
 
 DROP VIEW IF EXISTS vw_StudentCourseAverage;
 CREATE VIEW vw_StudentCourseAverage AS
@@ -73,9 +73,9 @@ FROM Department d
 LEFT JOIN Staff hs ON hs.StaffID = d.HeadID;
 
 
-/* =========================================================
-   USAGE EXAMPLES (commented out -- for manual testing only)
-   =========================================================
+/* 
+   USAGE EXAMPLES (for manual testing only)
+   
 SELECT * FROM vw_StudentCourseAverage LIMIT 10;
 SELECT * FROM vw_CourseEnrollmentSummary;
 SELECT * FROM vw_StaffTeachingLoad;
