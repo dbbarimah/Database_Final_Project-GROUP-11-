@@ -35,7 +35,7 @@ CREATE TABLE Student(
     StudentID INT PRIMARY KEY AUTO_INCREMENT,
     Fname VARCHAR(50) NOT NULL,
     Lname VARCHAR(50) NOT NULL,
-    StudentPhone VARCHAR(10),
+    StudentPhone VARCHAR(15),
     StudentEmail VARCHAR(100) NOT NULL UNIQUE,
     DepartmentID INT NOT NULL,
     FOREIGN KEY (DepartmentID) REFERENCES Department(DepartmentID)
@@ -56,7 +56,7 @@ CREATE TABLE Teaching_Assignment(
     AssignmentID INT PRIMARY KEY AUTO_INCREMENT,
     CourseID INT NOT NULL,
     AssigneeID INT NOT NULL,
-    Semester CHAR(1) NOT NULL CHECK (Semester IN ('1','2')),
+    Semester VARCHAR(7) NOT NULL CHECK (Semester REGEXP '^[0-9]{4}-S[12]$'),
     FOREIGN KEY (CourseID) REFERENCES Course(CourseID),
     FOREIGN KEY (AssigneeID) REFERENCES Staff(StaffID)
 );
@@ -66,11 +66,12 @@ CREATE TABLE Enrollment(
     EnrollmentID INT PRIMARY KEY AUTO_INCREMENT,
     StudentID INT NOT NULL,
     CourseID INT NOT NULL,
-    Semester CHAR(1) NOT NULL CHECK (Semester IN ('1','2')),
+    Semester VARCHAR(7) NOT NULL CHECK (Semester REGEXP '^[0-9]{4}-S[12]$'),
     EnrollmentDate DATE NOT NULL,
-    EnrollmentStatus VARCHAR(10) NOT NULL,
+    EnrollmentStatus VARCHAR(10) NOT NULL CHECK (EnrollmentStatus IN ('Active','Inactive','Completed')),
     FOREIGN KEY (StudentID) REFERENCES Student(StudentID),
-    FOREIGN KEY (CourseID) REFERENCES Course(CourseID)
+    FOREIGN KEY (CourseID) REFERENCES Course(CourseID),
+    UNIQUE (StudentID, CourseID, Semester)
 );
 
 -- Creating the Attendance Table
@@ -79,7 +80,8 @@ CREATE TABLE Attendance(
     EnrollmentID INT NOT NULL,
     SessionDate DATE NOT NULL,
     AttendanceStatus VARCHAR(10) CHECK (AttendanceStatus IN ('Present','Absent')),
-    FOREIGN KEY (EnrollmentID) REFERENCES Enrollment(EnrollmentID)
+    FOREIGN KEY (EnrollmentID) REFERENCES Enrollment(EnrollmentID),
+    UNIQUE (EnrollmentID, SessionDate)
 );
 
 -- Creating the Assessment Table
@@ -105,30 +107,45 @@ CREATE TABLE Grade(
     FOREIGN KEY (AssessmentID) REFERENCES Assessment(AssessmentID)
 );
 
--- Sequences for the Tables
+-- Creating the CourseMaterial Table
+CREATE TABLE CourseMaterial(
+    MaterialID INT PRIMARY KEY AUTO_INCREMENT,
+    CourseID INT NOT NULL,
+    MaterialTitle VARCHAR(150) NOT NULL,
+    FilePath VARCHAR(255) NOT NULL,
+    DateUploaded DATE NOT NULL,
+    FOREIGN KEY (CourseID) REFERENCES Course(CourseID)
+);
+
+
+-- Indexes for the Tables
+-- Student Table
 -- Student Table
 CREATE INDEX idx_student_department ON Student(DepartmentID);
-
+ 
 -- Staff Table
 CREATE INDEX idx_staff_department ON Staff(DepartmentID);
-
+ 
 -- Course Table
 CREATE INDEX idx_course_department ON Course(DepartmentID);
-
+ 
 -- Teaching_Assignment Table
 CREATE INDEX idx_teaching_course ON Teaching_Assignment(CourseID);
 CREATE INDEX idx_teaching_assignee ON Teaching_Assignment(AssigneeID);
-
+ 
 -- Enrollment Table
 CREATE INDEX idx_enrollment_student ON Enrollment(StudentID);
 CREATE INDEX idx_enrollment_course ON Enrollment(CourseID);
-
+ 
 -- Attendance Table
 CREATE INDEX idx_attendance_enrollment ON Attendance(EnrollmentID);
-
+ 
 -- Assessment Table
 CREATE INDEX idx_assessment_course ON Assessment(CourseID);
-
+ 
 -- Grade Table
 CREATE INDEX idx_grade_enrollment ON Grade(EnrollmentID);
 CREATE INDEX idx_grade_assessment ON Grade(AssessmentID);
+ 
+-- CourseMaterial Table
+CREATE INDEX idx_material_course ON CourseMaterial(CourseID);
