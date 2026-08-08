@@ -27,6 +27,7 @@ JOIN Grade g ON g.EnrollmentID = e.EnrollmentID
 JOIN Assessment a ON a.AssessmentID = g.AssessmentID
 GROUP BY e.EnrollmentID, e.StudentID, s.Fname, s.Lname, e.CourseID, c.CourseTitle, e.Semester;
 
+
 -- View 2: Shows how many students are enrolled in each course per semester
 DROP VIEW IF EXISTS vw_CourseEnrollmentSummary;
 CREATE VIEW vw_CourseEnrollmentSummary AS
@@ -39,6 +40,7 @@ SELECT
 FROM Course c
 JOIN Enrollment e ON e.CourseID = c.CourseID
 GROUP BY c.CourseID, c.CourseCode, c.CourseTitle, e.Semester;
+
 
 -- View 3: Shows how many Courses each Staff member is assigned to per semester
 DROP VIEW IF EXISTS vw_StaffTeachingLoad;
@@ -54,19 +56,23 @@ FROM Staff st
 JOIN Teaching_Assignment ta ON ta.AssigneeID = st.StaffID
 GROUP BY st.StaffID, st.Fname, st.Lname, st.Role, ta.Semester;
 
+
 -- View 4: Shows the attendance record for each enrolled student per course
 DROP VIEW IF EXISTS vw_AttendanceSummary;
 CREATE VIEW vw_AttendanceSummary AS
 SELECT
     e.EnrollmentID,
     e.StudentID,
+    CONCAT(s.Fname, ' ', s.Lname) AS StudentName,
     e.CourseID,
     COUNT(att.AttendanceID) AS SessionsRecorded,
     SUM(CASE WHEN att.AttendanceStatus = 'Present' THEN 1 ELSE 0 END) AS SessionsPresent,
     ROUND(100 * SUM(CASE WHEN att.AttendanceStatus = 'Present' THEN 1 ELSE 0 END) / COUNT(att.AttendanceID), 2) AS AttendanceRatePct
 FROM Enrollment e
+JOIN Student s ON s.StudentID = e.StudentID
 JOIN Attendance att ON att.EnrollmentID = e.EnrollmentID
-GROUP BY e.EnrollmentID, e.StudentID, e.CourseID;
+GROUP BY e.EnrollmentID, e.StudentID, s.Fname, s.Lname, e.CourseID;
+
 
 -- View 5: Gives a summary of each department
 DROP VIEW IF EXISTS vw_DepartmentOverview;
@@ -83,6 +89,21 @@ FROM Department d
 LEFT JOIN Staff hs ON hs.StaffID = d.HeadID;
 
 
+-- Additional View: Shows the number of materials available per course
+-- View 6: Shows the number of materials available per course
+DROP VIEW IF EXISTS vw_CourseMaterialSummary;
+CREATE VIEW vw_CourseMaterialSummary AS
+SELECT
+    c.CourseID,
+    c.CourseCode,
+    c.CourseTitle,
+    COUNT(cm.MaterialID) AS MaterialCount,
+    MAX(cm.DateUploaded) AS LastUploaded
+FROM Course c
+LEFT JOIN CourseMaterial cm ON cm.CourseID = c.CourseID
+GROUP BY c.CourseID, c.CourseCode, c.CourseTitle;
+
+
 
 -- 3 Stored Procedures
 -- Procedure 1: Enrolls a student into a course
@@ -91,7 +112,7 @@ DELIMITER $$
 CREATE PROCEDURE sp_EnrollStudent(
     IN p_StudentID INT,
     IN p_CourseID INT,
-    IN p_Semester CHAR(1),
+    IN p_Semester VARCHAR(7),
     IN p_EnrollmentDate DATE
 )
 BEGIN
@@ -110,6 +131,7 @@ BEGIN
     END IF;
 END$$
 DELIMITER ;
+
 
 -- Procedure 2: Records a student's score for a specific assessment
 DROP PROCEDURE IF EXISTS sp_RecordGrade;
@@ -137,6 +159,7 @@ BEGIN
 END$$
 DELIMITER ;
 
+
 -- Procedure 3: Takes in a StudentID and returns their full academic record
 DROP PROCEDURE IF EXISTS sp_GetStudentTranscript;
 DELIMITER $$
@@ -158,6 +181,7 @@ BEGIN
     ORDER BY e.Semester, c.CourseCode, a.AssessmentType;
 END$$
 DELIMITER ;
+
 
 
 
@@ -183,6 +207,7 @@ BEGIN
     RETURN IFNULL(v_Average, 0.00);
 END$$
 DELIMITER ;
+
 
 -- User-Defined Function 2: Calculates the Attendance Rate for a Specific Course
 DROP FUNCTION IF EXISTS fn_AttendanceRate;
@@ -212,6 +237,7 @@ DELIMITER ;
 
 
 
+
 -- 3 Triggers
 -- Trigger 1: Prevents a student from being enrolled in the same course twice in the same semester.
 DROP TRIGGER IF EXISTS trg_PreventDuplicateEnrollment;
@@ -233,6 +259,7 @@ BEGIN
 END$$
 DELIMITER ;
 
+
 -- Trigger 2: Prevents a grade from being recorded if it exceeds the maximum score for that assessment.
 DROP TRIGGER IF EXISTS trg_ValidateGradeScore;
 DELIMITER $$
@@ -253,6 +280,7 @@ BEGIN
     END IF;
 END$$
 DELIMITER ;
+
 
 -- Trigger 3: Updates a student's enrollment status to Completed once their exam grade has been recorded
 DROP TRIGGER IF EXISTS trg_CompleteEnrollmentOnExam;
@@ -276,6 +304,7 @@ BEGIN
 END$$
 DELIMITER ;
 
+/*
 SELECT fn_CourseWeightedAverage(1);
 SELECT fn_AttendanceRate(1);
 */
