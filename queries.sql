@@ -1,6 +1,6 @@
 USE Group11_FinalProject;
 
-/* The purpose of this file is to implement the advanced SQL queries
+/* The purpose of this file is to implement the advanced SQL queries (Phase 6)
 5 views
 3 stored procedures
 2 user-defined functions
@@ -90,7 +90,6 @@ LEFT JOIN Staff hs ON hs.StaffID = d.HeadID;
 
 
 -- Additional View: Shows the number of materials available per course
--- View 6: Shows the number of materials available per course
 DROP VIEW IF EXISTS vw_CourseMaterialSummary;
 CREATE VIEW vw_CourseMaterialSummary AS
 SELECT
@@ -304,8 +303,35 @@ BEGIN
 END$$
 DELIMITER ;
 
-/*
-SELECT fn_CourseWeightedAverage(1);
-SELECT fn_AttendanceRate(1);
-*/
+
+-- Additional Trigger: Prevents a faculty intern from being assigned to more than one course per semester
+DROP TRIGGER IF EXISTS trg_OneFIPerSemester;
+DELIMITER $$
+CREATE TRIGGER trg_OneFIPerSemester
+BEFORE INSERT ON Teaching_Assignment
+FOR EACH ROW
+BEGIN
+    DECLARE v_Role VARCHAR(20);
+
+    SELECT Role INTO v_Role
+    FROM Staff
+    WHERE StaffID = NEW.AssigneeID;
+
+    IF v_Role = 'Faculty Intern' AND EXISTS (
+        SELECT 1 FROM Teaching_Assignment
+        WHERE AssigneeID = NEW.AssigneeID
+          AND Semester = NEW.Semester
+    ) THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'A faculty intern can only be assigned to one course per semester.';
+    END IF;
+END$$
+DELIMITER ;
+
+
+
+
+
+
+
 
