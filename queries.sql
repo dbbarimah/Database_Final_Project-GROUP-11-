@@ -1,6 +1,7 @@
 USE Group11_FinalProject;
 
 /* The purpose of this file is to implement the advanced SQL queries (Phase 6)
+10 advanced queries
 5 views
 3 stored procedures
 2 user-defined functions
