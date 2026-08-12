@@ -1,7 +1,12 @@
 /* The purpose of this file is to enter the queries to insert the data after
-the tables have been created (Phase 5) 
+the tables have been created (Phase 5)
 At least 30 entries for the major tables.
 Does not need to be real or existing data.
+
+NOTE: Semester values updated to the 'YYYY-S1'/'YYYY-S2' format required by
+the CHECK constraint in the current schema.sql (Semester REGEXP '^[0-9]{4}-S[12]$').
+The old CHAR(1) '1'/'2' values ('S1' = Jan-ish dates, 'S2' = Jun/Jul-onward
+dates below) have been mapped to '2026-S1' and '2026-S2' respectively.
 */
 USE Group11_FinalProject;
 
@@ -27,7 +32,7 @@ INSERT INTO Staff (StaffID, Fname, Lname, StaffEmail, StaffPhone, Role, Departme
 (11,'Grace',   'Tetteh',    'grace.tetteh@ashesi.edu.gh',    '0241111011', 'Lecturer',       3),
 (12,'Peter',   'Quaye',     'peter.quaye@ashesi.edu.gh',     '0241111012', 'Lecturer',       4);
 
--- Assign one lecturer as the head of each department.
+/* Assign one lecturer as the head of each department. */
 UPDATE Department SET HeadID = 1 WHERE DepartmentID = 1;
 UPDATE Department SET HeadID = 2 WHERE DepartmentID = 2;
 UPDATE Department SET HeadID = 3 WHERE DepartmentID = 3;
@@ -83,22 +88,22 @@ INSERT INTO Course (CourseID, CourseCode, CourseTitle, CreditHours, DepartmentID
 
 -- Inserting Data into the Teaching_Assignment Table
 INSERT INTO Teaching_Assignment (AssignmentID, CourseID, AssigneeID, Semester) VALUES
-(1,  1,  1,  '2026-S1'),
-(2,  2,  9,  '2026-S1'),
-(3,  3,  1,  '2026-S1'),
-(4,  4,  2,  '2026-S1'),
-(5,  5,  10, '2026-S1'),
-(6,  6,  2,  '2026-S2'),
-(7,  7,  3,  '2026-S1'),
-(8,  8,  11, '2026-S1'),
-(9,  9,  3,  '2026-S2'),
-(10, 10, 4,  '2026-S1'),
-(11, 11, 12, '2026-S1'),
-(12, 12, 4,  '2026-S2'),
-(13, 3,  5,  '2026-S1'),
-(14, 5,  6,  '2026-S1'),
-(15, 8,  7,  '2026-S1'),
-(16, 11, 8,  '2026-S1');
+(1,  1,  1, '2026-S1'),
+(2,  2,  9, '2026-S1'),
+(3,  3,  1, '2026-S1'),
+(4,  4,  2, '2026-S1'),
+(5,  5, 10, '2026-S1'),
+(6,  6,  2, '2026-S2'),
+(7,  7,  3, '2026-S1'),
+(8,  8, 11, '2026-S1'),
+(9,  9,  3, '2026-S2'),
+(10, 10, 4, '2026-S1'),
+(11, 11,12, '2026-S1'),
+(12, 12, 4, '2026-S2'),
+(13, 3,  5, '2026-S1'),
+(14, 5,  6, '2026-S1'),
+(15, 8,  7, '2026-S1'),
+(16, 11, 8, '2026-S1');
 
 -- Inserting Data into the Enrollment Table
 INSERT INTO Enrollment (EnrollmentID, StudentID, CourseID, Semester, EnrollmentDate, EnrollmentStatus) VALUES
@@ -237,17 +242,3 @@ INSERT INTO Grade (GradeID, EnrollmentID, AssessmentID, ScoreObtained, DateRecor
 (28, 28, 7,  36.00, '2026-03-18'),
 (29, 29, 13, 19.00, '2026-02-28'),
 (30, 30, 22, 16.00, '2026-03-02');
-
--- Inserting Data into the CourseMaterial Table
--- Inserting Data into the CourseMaterial Table
-INSERT INTO CourseMaterial (MaterialID, CourseID, MaterialTitle, FilePath, DateUploaded) VALUES
-(1,  1,  'Week 1 Lecture Slides',        'materials/cs101/week1_slides.pdf',      '2026-01-12'),
-(2,  1,  'Week 2 Lecture Slides',        'materials/cs101/week2_slides.pdf',      '2026-01-19'),
-(3,  2,  'DSA Course Outline',           'materials/cs201/course_outline.pdf',    '2026-01-11'),
-(4,  2,  'Sorting Algorithms Notes',     'materials/cs201/sorting_notes.pdf',     '2026-02-01'),
-(5,  3,  'ER Diagram Tutorial',          'materials/cs301/er_tutorial.pdf',       '2026-01-13'),
-(6,  3,  'SQL Basics Handout',           'materials/cs301/sql_basics.pdf',        '2026-01-20'),
-(7,  4,  'Management Theories Notes',    'materials/bus101/mgmt_theories.pdf',    '2026-01-12'),
-(8,  5,  'Marketing Mix Slides',         'materials/bus205/marketing_mix.pdf',    '2026-01-14'),
-(9,  6,  'Corporate Finance Outline',    'materials/bus310/finance_outline.pdf',  '2026-06-17'),
-(10, 7,  'Engineering Maths Week 1',     'materials/eng101/week1_notes.pdf',      '2026-01-11');
