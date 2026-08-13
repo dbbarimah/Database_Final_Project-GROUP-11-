@@ -1,78 +1,19 @@
-/* =====================================================================
-   GROUP 11 — School Learning Management System
-   PHASE 7: SECURITY — User Roles, Privileges and Access Control
-   Target: MariaDB 10.4+ (tested on 12.2)   Database: Group11_FinalProject
-   =====================================================================
-
-   WHAT THIS FILE DOES
-   -------------------
-   Creates the four user roles from the project brief and gives each one
-   exactly the access it needs:
-
-     db_admin        full control of the schema
-     lecturer        view enrollments, grades, attendance and
-                     assessments for the courses they teach
-     faculty_intern  record grades and attendance for the course they
-                     are assigned to
-     student         view their own records only
-
-   HOW TO RUN
-   ----------
-     mariadb -u root -p < schema_fixed.sql
-     mariadb -u root -p < data.sql
-     mariadb -u root -p < security.sql
-
-   Re-running it is safe. Add --force if you want the client to carry on
-   past the one statement that objects to being run twice (Section 11.2).
-
-   NAMING — AVOIDING A CLASH WITH PHASE 6
-   --------------------------------------
-   Phase 6 also writes a procedure to record a grade. Every procedure
-   here is prefixed sp_secure_ so the two do not overwrite each other.
-   These are access-control wrappers, not the business procedures Phase 6
-   is responsible for.
-
-   TESTED
-   ------
-   Verified against MariaDB 12.2 with the Phase 4 schema and Phase 5
-   data loaded. See Section 11 for the test commands and results.
-   ================================================================== */
-
 USE Group11_FinalProject;
 
-
-/* =====================================================================
-   SECTION 1 — SCHEMA OWNER
-   =====================================================================
-   The views and procedures below are all SQL SECURITY DEFINER: they run
-   with the privileges of the account that created them, not the account
-   that calls them. That is the mechanism that lets a student read their
-   own grade without holding any privilege on the Grade table.
-
-   A MariaDB role cannot be a DEFINER, so a dedicated user account owns
-   them. Nobody logs in as this account — it is locked immediately.
-   ================================================================== */
+/* Schema Account
+This account owns the secure views and procedures in the database.
+It is locked becasue it is only used internally by the database.
+*/
 
 CREATE USER IF NOT EXISTS 'lms_owner'@'localhost'
-  IDENTIFIED BY 'ChangeMe_Owner#2026';
+  IDENTIFIED BY 'ChangeMe_LMS1';
 
 GRANT ALL PRIVILEGES ON Group11_FinalProject.* TO 'lms_owner'@'localhost';
 
 ALTER USER 'lms_owner'@'localhost' ACCOUNT LOCK;
 
 
-/* =====================================================================
-   SECTION 2 — THE FOUR ROLES
-   =====================================================================
-   Privileges are granted to roles, never directly to people. Adding a
-   new lecturer next semester is then a single GRANT rather than a dozen.
-
-   Note: MariaDB keeps roles and user accounts in the same table
-   (mysql.user, distinguished by is_role). So no login account may be
-   named 'student', 'lecturer' or 'faculty_intern'. Real accounts are
-   named after the person, so this is not a practical restriction.
-   ================================================================== */
-
+-- Creating the User roles for the database
 DROP ROLE IF EXISTS db_admin;
 DROP ROLE IF EXISTS lecturer;
 DROP ROLE IF EXISTS faculty_intern;
@@ -84,14 +25,8 @@ CREATE ROLE faculty_intern;
 CREATE ROLE student;
 
 
-/* =====================================================================
-   SECTION 3 — db_admin
-   =====================================================================
-   Everything inside Group11_FinalProject, and nothing outside it. The
-   administrator can manage this application completely without being
-   able to read other databases on the same server.
-   ================================================================== */
-
+-- FUNCTIONALITIES ASSOCIATED WITH DATABASE ADMINISTRATOR
+-- Administrator privileges
 GRANT ALL PRIVILEGES ON Group11_FinalProject.* TO db_admin;
 
 GRANT CREATE USER ON *.* TO db_admin;
@@ -101,35 +36,8 @@ GRANT LOCK TABLES, SELECT, SHOW VIEW, EVENT, TRIGGER
   ON Group11_FinalProject.* TO db_admin;
 GRANT REPLICATION CLIENT ON *.* TO db_admin;
 
-
-/* =====================================================================
-   SECTION 4 — WHO IS ASKING?
-   =====================================================================
-   Every rule in this phase says "you may see YOUR records", so the
-   database has to know which person a connection belongs to.
-
-   MAPPING RULE
-     The login name is the local part of the person's institutional
-     email address.
-        StudentEmail  ama.amoako@ashesi.edu.gh
-        login         'ama.amoako'@'%'
-     This works with the existing data unchanged. Both StudentEmail and
-     StaffEmail are already UNIQUE, so the mapping cannot be ambiguous.
-
-   SESSION_USER(), NOT CURRENT_USER()
-     Inside a DEFINER routine, CURRENT_USER() returns the definer
-     (lms_owner) rather than the caller. Using it here would make every
-     student resolve to lms_owner and see nothing at all.
-     SESSION_USER() always returns the account that actually connected.
-
-   SEMESTER IS VARCHAR, NOT CHAR(1)
-     The schema stores semester as VARCHAR(7) in the form '2026-S1'.
-     An earlier draft of this file declared the semester parameters as
-     CHAR(1), which failed at runtime with
-         ERROR 1406 (22001): Data too long for column 'p_semester'
-     All semester parameters and variables below are VARCHAR(10).
-   ================================================================== */
-
+-- Login and access-control functions
+-- Gets the username of the person logging in
 DELIMITER $$
 
 DROP FUNCTION IF EXISTS fn_login$$
@@ -140,7 +48,7 @@ BEGIN
   RETURN SUBSTRING_INDEX(SESSION_USER(), '@', 1);
 END$$
 
-
+-- Finds the student ID that belongs to the logged-in student
 DROP FUNCTION IF EXISTS fn_current_student_id$$
 CREATE DEFINER = 'lms_owner'@'localhost'
 FUNCTION fn_current_student_id() RETURNS INT
@@ -154,7 +62,7 @@ BEGIN
   RETURN v_id;
 END$$
 
-
+-- Finds the staff ID thaat belongs to the logged-in Lecturer or Faculty Intern
 DROP FUNCTION IF EXISTS fn_current_staff_id$$
 CREATE DEFINER = 'lms_owner'@'localhost'
 FUNCTION fn_current_staff_id() RETURNS INT
@@ -168,21 +76,7 @@ BEGIN
   RETURN v_id;
 END$$
 
-
-/* ---------------------------------------------------------------------
-   fn_may_teach(CourseID, Semester)
-   ---------------------------------------------------------------------
-   TRUE when the caller appears in Teaching_Assignment for that course
-   in that semester, whether as lecturer or as faculty intern.
-
-   This one function is where BR3, BR5 and BR9 are enforced. Everything
-   else in the file calls it rather than repeating the logic, so there
-   is exactly one place to audit and one place to change.
-
-   The semester is part of the test. An intern who assisted CS301 last
-   semester loses access when the new semester's assignments are loaded,
-   without anyone having to revoke anything.
-   ------------------------------------------------------------------ */
+-- Checks whether the logged-in staff is assigned to teach a specific course in a specific semester
 DROP FUNCTION IF EXISTS fn_may_teach$$
 CREATE DEFINER = 'lms_owner'@'localhost'
 FUNCTION fn_may_teach(p_course_id INT, p_semester VARCHAR(10)) RETURNS BOOLEAN
@@ -200,44 +94,21 @@ END$$
 DELIMITER ;
 
 
-/* =====================================================================
-   SECTION 5 — REFERENCE DATA
-   =====================================================================
-   Department and Course carry no personal information — they are the
-   institution's public catalogue. Readable by everyone, writable only
-   by db_admin.
-   ================================================================== */
-
+-- Giving lecturers, faculty interns, and students permission to view basic course information
 GRANT SELECT ON Group11_FinalProject.Department
   TO lecturer, faculty_intern, student;
 GRANT SELECT ON Group11_FinalProject.Course
   TO lecturer, faculty_intern, student;
 
-/* Teaching_Assignment tells you who teaches what. Staff may see it in
-   full; students get only the course and semester columns, not the
-   staff assignment. Column-level GRANT is neater than a view here. */
 GRANT SELECT ON Group11_FinalProject.Teaching_Assignment
   TO lecturer, faculty_intern;
 GRANT SELECT (AssignmentID, CourseID, Semester)
   ON Group11_FinalProject.Teaching_Assignment TO student;
 
 
-/* =====================================================================
-   SECTION 6 — STUDENT ACCESS
-   =====================================================================
-   This is the part plain GRANT cannot express.
 
-     GRANT SELECT ON Grade TO student;
-
-   would let every student read every row of the Grade table — all
-   thirty students' marks. GRANT works on tables, not rows, and MariaDB
-   has no row-level security.
-
-   So the base tables stay closed, and each student reads through a view
-   that filters on their own identity. The same view returns different
-   rows to different people.
-   ================================================================== */
-
+-- FUNCTIONALITIES ASSOCIATED WITH STUDENT
+-- Showing the courses the logged-in student is enrolled in
 CREATE OR REPLACE
   DEFINER = 'lms_owner'@'localhost' SQL SECURITY DEFINER
 VIEW v_my_profile AS
@@ -247,7 +118,7 @@ SELECT s.StudentID, s.Fname, s.Lname, s.StudentEmail, s.StudentPhone,
   JOIN Department d ON d.DepartmentID = s.DepartmentID
  WHERE s.StudentID = fn_current_student_id();
 
-
+-- Showing the courses the logged-in student is enrolled in
 CREATE OR REPLACE
   DEFINER = 'lms_owner'@'localhost' SQL SECURITY DEFINER
 VIEW v_my_enrollments AS
@@ -258,9 +129,7 @@ SELECT e.EnrollmentID, e.CourseID, e.Semester,
   JOIN Course c ON c.CourseID = e.CourseID
  WHERE e.StudentID = fn_current_student_id();
 
-
-/* Grades for every course, including completed ones — Assumption 9 of
-   Phase 1 says students keep access to past results. */
+-- Showing the logged-in student's grades
 CREATE OR REPLACE
   DEFINER = 'lms_owner'@'localhost' SQL SECURITY DEFINER
 VIEW v_my_grades AS
@@ -274,7 +143,7 @@ SELECT g.GradeID, g.ScoreObtained, g.DateRecorded,
   JOIN Course     c ON c.CourseID     = e.CourseID
  WHERE e.StudentID = fn_current_student_id();
 
-
+-- Showing the logged-in student's attendace records
 CREATE OR REPLACE
   DEFINER = 'lms_owner'@'localhost' SQL SECURITY DEFINER
 VIEW v_my_attendance AS
@@ -285,11 +154,7 @@ SELECT at.AttendanceID, at.SessionDate, at.AttendanceStatus,
   JOIN Course     c ON c.CourseID     = e.CourseID
  WHERE e.StudentID = fn_current_student_id();
 
-
-/* Assessments only for courses the student is CURRENTLY enrolled in.
-   The EnrollmentStatus filter is what makes BR10 true rather than
-   merely intended: a student whose status changes to Inactive loses
-   access immediately, with no revoke required. */
+-- Showing the assessments for the logged-in student's active courses
 CREATE OR REPLACE
   DEFINER = 'lms_owner'@'localhost' SQL SECURITY DEFINER
 VIEW v_my_assessments AS
@@ -302,8 +167,7 @@ SELECT a.AssessmentID, a.AssessmentType, a.MaxScore, a.WeightPercent,
  WHERE e.StudentID        = fn_current_student_id()
    AND e.EnrollmentStatus = 'Active';
 
-
-/* Course materials, same rule — BR10. */
+-- Showing the learning materials for the logged-in student's active courses
 CREATE OR REPLACE
   DEFINER = 'lms_owner'@'localhost' SQL SECURITY DEFINER
 VIEW v_my_course_materials AS
@@ -316,7 +180,7 @@ SELECT m.MaterialID, m.MaterialTitle, m.FilePath, m.DateUploaded,
    AND e.EnrollmentStatus = 'Active';
 
 
-/* ---- Student privileges: views only, never base tables ---------- */
+-- Student view and function privileges
 GRANT SELECT ON Group11_FinalProject.v_my_profile          TO student;
 GRANT SELECT ON Group11_FinalProject.v_my_enrollments      TO student;
 GRANT SELECT ON Group11_FinalProject.v_my_grades           TO student;
@@ -328,13 +192,9 @@ GRANT EXECUTE ON FUNCTION Group11_FinalProject.fn_login              TO student;
 GRANT EXECUTE ON FUNCTION Group11_FinalProject.fn_current_student_id TO student;
 
 
-/* =====================================================================
-   SECTION 7 — LECTURER AND FACULTY INTERN — READ ACCESS
-   =====================================================================
-   Same technique, different filter: instead of "my student id", the
-   test is "this course, this semester, is mine".
-   ================================================================== */
 
+-- FUNCTIONALITIES ASSOCIATED WITH LECTURERS AND FACULTY INTERNS
+-- Showing the courses assigned to the logged-in lectuer or faculty intern
 CREATE OR REPLACE
   DEFINER = 'lms_owner'@'localhost' SQL SECURITY DEFINER
 VIEW v_my_teaching AS
@@ -347,7 +207,7 @@ SELECT ta.AssignmentID, ta.CourseID, ta.Semester,
   JOIN Staff      s ON s.StaffID      = ta.AssigneeID
  WHERE ta.AssigneeID = fn_current_staff_id();
 
-
+-- Showing the students enrolled in the lecturer's or faculty intern's courses
 CREATE OR REPLACE
   DEFINER = 'lms_owner'@'localhost' SQL SECURITY DEFINER
 VIEW v_class_list AS
@@ -360,7 +220,7 @@ SELECT e.EnrollmentID, e.StudentID, e.CourseID, e.Semester,
   JOIN Course  c  ON c.CourseID   = e.CourseID
  WHERE fn_may_teach(e.CourseID, e.Semester);
 
-
+-- Showing the grades for students in their assigned courses
 CREATE OR REPLACE
   DEFINER = 'lms_owner'@'localhost' SQL SECURITY DEFINER
 VIEW v_class_grades AS
@@ -376,7 +236,7 @@ SELECT g.GradeID, g.EnrollmentID, g.AssessmentID,
   JOIN Course     c  ON c.CourseID     = e.CourseID
  WHERE fn_may_teach(e.CourseID, e.Semester);
 
-
+-- Showing attendance for students in their assigned courses
 CREATE OR REPLACE
   DEFINER = 'lms_owner'@'localhost' SQL SECURITY DEFINER
 VIEW v_class_attendance AS
@@ -390,23 +250,7 @@ SELECT at.AttendanceID, at.EnrollmentID, at.SessionDate,
   JOIN Course     c  ON c.CourseID     = e.CourseID
  WHERE fn_may_teach(e.CourseID, e.Semester);
 
-
-/* ---------------------------------------------------------------------
-   Assessment and CourseMaterial hang off Course only — they carry no
-   semester of their own. So "is this mine?" has to mean "am I assigned
-   to this course in any semester?", tested directly against
-   Teaching_Assignment.
-
-   An earlier draft called fn_may_teach(CourseID, '1') and (..., '2')
-   with the semester written in as a literal. That did not error, it
-   just silently returned nothing once the semester format changed to
-   '2026-S1' — a worse failure than an error, because it looks like the
-   staff member simply has no assessments.
-
-   The underlying modelling question — that an assessment cannot be
-   distinguished between semesters — is raised in the Phase 7 document
-   as a matter for the group rather than something changed here.
-   ------------------------------------------------------------------ */
+-- Showing assessments for their assigned courses
 CREATE OR REPLACE
   DEFINER = 'lms_owner'@'localhost' SQL SECURITY DEFINER
 VIEW v_class_assessments AS
@@ -420,7 +264,7 @@ SELECT a.AssessmentID, a.CourseID, a.AssessmentType,
           WHERE ta.CourseID   = a.CourseID
             AND ta.AssigneeID = fn_current_staff_id());
 
-
+-- Showing Course Materials for their assigned courses
 CREATE OR REPLACE
   DEFINER = 'lms_owner'@'localhost' SQL SECURITY DEFINER
 VIEW v_class_materials AS
@@ -435,6 +279,7 @@ SELECT m.MaterialID, m.CourseID, m.MaterialTitle,
             AND ta.AssigneeID = fn_current_staff_id());
 
 
+-- Lecturer and faculty intern privileges
 GRANT SELECT ON Group11_FinalProject.v_my_teaching        TO lecturer, faculty_intern;
 GRANT SELECT ON Group11_FinalProject.v_class_list         TO lecturer, faculty_intern;
 GRANT SELECT ON Group11_FinalProject.v_class_grades       TO lecturer, faculty_intern;
@@ -447,20 +292,9 @@ GRANT EXECUTE ON FUNCTION Group11_FinalProject.fn_current_staff_id    TO lecture
 GRANT EXECUTE ON FUNCTION Group11_FinalProject.fn_may_teach           TO lecturer, faculty_intern;
 
 
-/* =====================================================================
-   SECTION 8 — WRITE ACCESS
-   =====================================================================
-   The faculty intern must INSERT and UPDATE grades and attendance —
-   but only for their assigned course.
 
-   A view cannot do this. Views built on JOINs are not updatable in
-   MariaDB, so there is no v_class_grades to INSERT into. Writes
-   therefore go through procedures that check the caller's assignment
-   before touching anything, while the base tables stay closed.
 
-   This also gives one place to enforce the score limit at entry.
-   ================================================================== */
-
+-- Secure grade, attendance, and material procedures
 DELIMITER $$
 
 DROP PROCEDURE IF EXISTS sp_secure_record_grade$$
@@ -482,14 +316,10 @@ BEGIN
   IF v_course IS NULL THEN
     SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'No such enrollment.';
   END IF;
-
-  -- BR5: the caller must be assigned to this course this semester
   IF NOT fn_may_teach(v_course, v_semester) THEN
     SIGNAL SQLSTATE '45000'
       SET MESSAGE_TEXT = 'You are not assigned to this course for this semester.';
   END IF;
-
-  -- The assessment must belong to the same course
   SELECT CourseID, MaxScore INTO v_a_course, v_max
     FROM Assessment WHERE AssessmentID = p_assessment_id;
 
@@ -497,17 +327,12 @@ BEGIN
     SIGNAL SQLSTATE '45000'
       SET MESSAGE_TEXT = 'That assessment does not belong to this course.';
   END IF;
-
-  -- Score must be within range
   IF p_score < 0 OR p_score > v_max THEN
     SIGNAL SQLSTATE '45000'
       SET MESSAGE_TEXT = 'Score is outside the permitted range for this assessment.';
   END IF;
 
-  /* One grade per student per assessment. Relies on
-     UNIQUE (EnrollmentID, AssessmentID) on Grade. Without that
-     constraint this INSERT creates a duplicate row instead of
-     correcting the existing one. */
+  
   INSERT INTO Grade (EnrollmentID, AssessmentID, ScoreObtained, DateRecorded)
   VALUES (p_enrollment_id, p_assessment_id, p_score, CURDATE())
   ON DUPLICATE KEY UPDATE
@@ -559,7 +384,6 @@ PROCEDURE sp_secure_add_material(
     IN p_file_path VARCHAR(255))
   MODIFIES SQL DATA SQL SECURITY DEFINER
 BEGIN
-  -- BR9: upload only for your own course
   IF NOT fn_may_teach(p_course_id, p_semester) THEN
     SIGNAL SQLSTATE '45000'
       SET MESSAGE_TEXT = 'You are not assigned to this course for this semester.';
@@ -571,75 +395,42 @@ END$$
 
 DELIMITER ;
 
+-- Procedure privileges
 GRANT EXECUTE ON PROCEDURE Group11_FinalProject.sp_secure_record_grade
   TO lecturer, faculty_intern;
 GRANT EXECUTE ON PROCEDURE Group11_FinalProject.sp_secure_record_attendance
   TO lecturer, faculty_intern;
 GRANT EXECUTE ON PROCEDURE Group11_FinalProject.sp_secure_add_material
   TO lecturer, faculty_intern;
-
-/* What is deliberately NOT granted below db_admin:
-     - DELETE on any table. Academic records are not destroyed by
-       teaching staff. A withdrawal is a status change on Enrollment.
-     - Any privilege at all on the base Grade, Attendance, Enrollment,
-       Student or CourseMaterial tables.
-     - Any privilege on Staff. Nobody but the administrator reads the
-       staff table, so nobody can enumerate colleagues' contact details. */
-
-
-/* =====================================================================
-   SECTION 9 — LOGIN ACCOUNTS
-   =====================================================================
-   Demonstration accounts built from the real people in data.sql.
-   Passwords are placeholders and must be changed before any real use.
-
-   The two-step pattern matters in MariaDB:
-       GRANT <role> TO <user>          makes the role available
-       SET DEFAULT ROLE <role> FOR ..  activates it on connect
-
-   Without the second statement the role stays dormant, the user has to
-   type SET ROLE every session, and it looks as though the grants did
-   not work. Note MariaDB uses FOR here; MySQL 8 uses TO.
-   ================================================================== */
-
--- Administrator
+-- Demonstration login accounts
 CREATE USER IF NOT EXISTS 'lms_dba'@'localhost'
-  IDENTIFIED BY 'ChangeMe_Dba#2026';
+  IDENTIFIED BY 'ChangeMe_DBA1';
 GRANT db_admin TO 'lms_dba'@'localhost';
 SET DEFAULT ROLE db_admin FOR 'lms_dba'@'localhost';
-
--- Lecturer — Kwame Mensah, StaffID 1
 CREATE USER IF NOT EXISTS 'kwame.mensah'@'%'
-  IDENTIFIED BY 'ChangeMe_Lect#2026';
+  IDENTIFIED BY 'ChangeMe_LEC1';
 GRANT lecturer TO 'kwame.mensah'@'%';
 SET DEFAULT ROLE lecturer FOR 'kwame.mensah'@'%';
-
--- Faculty intern — Michael Addo, StaffID 5
 CREATE USER IF NOT EXISTS 'michael.addo'@'%'
-  IDENTIFIED BY 'ChangeMe_Intern#2026';
+  IDENTIFIED BY 'ChangeMe_FI1';
 GRANT faculty_intern TO 'michael.addo'@'%';
 SET DEFAULT ROLE faculty_intern FOR 'michael.addo'@'%';
-
--- Students — Ama Amoako (StudentID 1) and Kojo Appiah (StudentID 2),
--- both enrolled in CS101, both graded on the same quiz. They make the
--- clearest possible demonstration: identical query, different results.
 CREATE USER IF NOT EXISTS 'ama.amoako'@'%'
-  IDENTIFIED BY 'ChangeMe_Stu1#2026';
+  IDENTIFIED BY 'ChangeMe_STU1';
 GRANT student TO 'ama.amoako'@'%';
 SET DEFAULT ROLE student FOR 'ama.amoako'@'%';
 
 CREATE USER IF NOT EXISTS 'kojo.appiah'@'%'
-  IDENTIFIED BY 'ChangeMe_Stu2#2026';
+  IDENTIFIED BY 'ChangeMe_STU1';
 GRANT student TO 'kojo.appiah'@'%';
 SET DEFAULT ROLE student FOR 'kojo.appiah'@'%';
 
 FLUSH PRIVILEGES;
 
 
-/* =====================================================================
-   SECTION 10 — VERIFICATION
-   ================================================================== */
 
+
+-- Verification queries
 SELECT User AS RoleName FROM mysql.user WHERE is_role = 'Y';
 
 SHOW GRANTS FOR student;
@@ -648,74 +439,10 @@ SHOW GRANTS FOR faculty_intern;
 SHOW GRANTS FOR db_admin;
 
 SELECT User, Host, default_role FROM mysql.user WHERE is_role = 'N';
-
-
-/* ---------------------------------------------------------------------
-   TEST RESULTS — run against MariaDB 12.2
-   ---------------------------------------------------------------------
-   1. Student sees only their own grade
-      mariadb -u ama.amoako -p Group11_FinalProject
-        SELECT * FROM v_my_grades;
-      -> 1 row: GradeID 1, 16.00, Quiz, CS101, 80.00%          PASS
-
-   2. A different student, identical query, different row
-      mariadb -u kojo.appiah -p Group11_FinalProject
-        SELECT * FROM v_my_grades;
-      -> 1 row: GradeID 2, 14.00, Quiz, CS101, 70.00%          PASS
-
-   3. Student cannot reach the base table
-      mariadb -u ama.amoako -p Group11_FinalProject
-        SELECT * FROM Grade;
-      -> ERROR 1142 (42000): SELECT command denied to user
-         'ama.amoako'@'localhost' for table 'grade'            PASS
-
-   4. Faculty intern sees only their assigned class
-      mariadb -u michael.addo -p Group11_FinalProject
-        SELECT * FROM v_class_list;
-      -> 4 rows, all CS301 in 2026-S1, out of 30 enrollments  PASS
-
-   5. Faculty intern refused on another lecturer's course
-      mariadb -u michael.addo -p Group11_FinalProject
-        CALL sp_secure_record_grade(1, 1, 18);
-      -> ERROR 1644 (45000): You are not assigned to this
-         course for this semester.                           PASS
-
-   All five confirmed. Two students running a character-for-character
-   identical query and receiving different rows is the clearest possible
-   demonstration that row-level filtering works. Test 5 is the same idea
-   on the write side, and the refusal comes from the database rather than
-   from application code.
-   ------------------------------------------------------------------ */
-
-/* =====================================================================
-   SECTION 11 — PASSWORD AND ACCOUNT POLICY
-   =====================================================================
-   This section is LAST on purpose. INSTALL SONAME has no IF NOT EXISTS
-   in MariaDB, so on a second run it raises
-
-       ERROR 1125 (HY000): Function 'simple_password_check'
-                           already exists
-
-   and the mariadb client, reading a file in batch mode, stops at the
-   first error. Anything after it would never run. Placed here, an abort
-   costs nothing - every other statement in the file has already run.
-
-   Within the section the same rule applies: the ALTER USER statements
-   come before INSTALL SONAME, so they always take effect.
-
-   To re-run the whole file without stopping:
-       mariadb -u root -p --force < security.sql
-   ================================================================== */
-
-/* ---- 11.1  Expiry and resource limits ---------------------------- */
-
--- Staff and administrator passwords expire quarterly.
+-- Password expiry and account limits
 ALTER USER 'kwame.mensah'@'%'    PASSWORD EXPIRE INTERVAL 90 DAY;
 ALTER USER 'michael.addo'@'%'    PASSWORD EXPIRE INTERVAL 90 DAY;
 ALTER USER 'lms_dba'@'localhost' PASSWORD EXPIRE INTERVAL 90 DAY;
-
--- Cap resource use on every account, so one runaway client cannot
--- starve the server. Staff limits are higher: they read whole classes.
 ALTER USER 'ama.amoako'@'%'
   WITH MAX_QUERIES_PER_HOUR 1000 MAX_USER_CONNECTIONS 3;
 ALTER USER 'kojo.appiah'@'%'
@@ -725,26 +452,13 @@ ALTER USER 'kwame.mensah'@'%'
 ALTER USER 'michael.addo'@'%'
   WITH MAX_QUERIES_PER_HOUR 5000 MAX_USER_CONNECTIONS 5;
 
-/* KNOWN GAP - no automatic lockout after repeated failed logins.
-   MySQL 8 has FAILED_LOGIN_ATTEMPTS / PASSWORD_LOCK_TIME; MariaDB has
-   no equivalent (MDEV-7598 is still open). Brute-force throttling must
-   happen outside the database - in the Flask application, or with
-   fail2ban watching the server log. Recorded here rather than left
-   silent. An account can still be locked manually:
-       ALTER USER 'ama.amoako'@'%' ACCOUNT LOCK;                     */
 
 
-/* ---- 11.2  Password strength ------------------------------------- */
-/* Enforced by the server, so the rules apply however a password is set,
-   including passwords changed later by the users themselves.
 
-   To survive a restart this also has to go in my.cnf:
-       [mariadb]
-       plugin_load_add = simple_password_check
 
-   If the next statement errors with 1125, the plugin is already loaded
-   and the four settings below are already in force. Nothing is wrong. */
 
+
+-- Password strength rules
 INSTALL SONAME 'simple_password_check';
 
 SET GLOBAL simple_password_check_minimal_length    = 12;
@@ -752,7 +466,3 @@ SET GLOBAL simple_password_check_digits            = 1;
 SET GLOBAL simple_password_check_letters_same_case = 1;
 SET GLOBAL simple_password_check_other_characters  = 1;
 
-
-/* =====================================================================
-   END OF PHASE 7
-   ================================================================== */
