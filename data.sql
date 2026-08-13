@@ -237,3 +237,17 @@ INSERT INTO Grade (GradeID, EnrollmentID, AssessmentID, ScoreObtained, DateRecor
 (28, 28, 7,  36.00, '2026-03-18'),
 (29, 29, 13, 19.00, '2026-02-28'),
 (30, 30, 22, 16.00, '2026-03-02');
+
+-- Inserting Data into the Course Material Table
+-- Inserting Data into the CourseMaterial Table
+INSERT INTO CourseMaterial (MaterialID, CourseID, MaterialTitle, FilePath, DateUploaded) VALUES
+(1,  1,  'Introduction to Computing Notes',       'materials/CS101/introduction_notes.pdf',      '2026-02-01'),
+(2,  1,  'Python Basics Slides',                  'materials/CS101/python_basics.pptx',          '2026-02-08'),
+(3,  2,  'Linked Lists Notes',                    'materials/CS201/linked_lists_notes.pdf',      '2026-02-10'),
+(4,  3,  'Database Design Slides',                'materials/CS301/database_design.pptx',        '2026-02-12'),
+(5,  3,  'SQL Practice Questions',                'materials/CS301/sql_practice.pdf',            '2026-02-15'),
+(6,  4,  'Management Principles Reading',         'materials/BUS101/management_reading.pdf',     '2026-02-05'),
+(7,  5,  'Marketing Strategy Slides',             'materials/BUS205/marketing_strategy.pptx',    '2026-02-14'),
+(8,  7,  'Mathematics Formula Sheet',             'materials/ENG101/formula_sheet.pdf',          '2026-02-09'),
+(9,  8,  'Digital Logic Notes',                   'materials/ENG220/digital_logic_notes.pdf',    '2026-02-16'),
+(10, 10, 'Introduction to Sociology Reading',     'materials/SOC101/sociology_reading.pdf',      '2026-02-11');
