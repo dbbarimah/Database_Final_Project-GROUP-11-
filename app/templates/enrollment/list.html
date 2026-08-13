@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Enrollments{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">Enrollments</h1>
+  <a class="btn btn-primary" href="{{ url_for('enrollment.create_enrollment') }}">New Enrollment</a>
+</div>
+<input type="search" class="form-control mb-2" placeholder="Search enrollments&hellip;" data-filter-target="#enrollments-table">
+<div class="table-responsive">
+  <table class="table table-striped" id="enrollments-table">
+    <thead><tr><th>Semester</th><th>Student</th><th>Course</th><th>Enrolled</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+      {% for e in enrollments %}
+      <tr>
+        <td>{{ e.Semester }}</td>
+        <td>{{ e.Fname }} {{ e.Lname }}</td>
+        <td>{{ e.CourseCode }}</td>
+        <td>{{ e.EnrollmentDate }}</td>
+        <td>
+          <form method="post" action="{{ url_for('enrollment.update_status', enrollment_id=e.EnrollmentID) }}" class="d-flex gap-1">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <select class="form-select form-select-sm" name="status" onchange="this.form.requestSubmit()">
+              {% for st in ['Active', 'Inactive', 'Completed'] %}
+              <option value="{{ st }}" {% if e.EnrollmentStatus == st %}selected{% endif %}>{{ st }}</option>
+              {% endfor %}
+            </select>
+          </form>
+        </td>
+        <td class="text-end">
+          <button type="button" class="btn btn-sm btn-outline-danger"
+                  hx-post="{{ url_for('enrollment.delete_enrollment', enrollment_id=e.EnrollmentID) }}"
+                  hx-confirm="Delete this enrollment?"
+                  hx-target="closest tr"
+                  hx-swap="outerHTML swap:200ms">Delete</button>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6" class="text-muted">No enrollments found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <p class="text-muted d-none" data-filter-empty>No enrollments match that search.</p>
+</div>
+{% endblock %}

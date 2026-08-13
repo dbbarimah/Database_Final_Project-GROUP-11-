@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Grades{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">Grades</h1>
+  <a class="btn btn-primary" href="{{ url_for('grade.create_grade') }}">Record Grade</a>
+</div>
+
+{% for course_label, items in grades|groupby('CourseLabel') %}
+<span class="eyebrow">Course</span>
+<h2 class="h5 mb-2">{{ course_label }}</h2>
+<div class="table-responsive mb-4">
+  <table class="table table-striped report-grouped-table">
+    <thead><tr><th>Student</th><th>Assessment</th><th>Score</th><th>Max</th><th>Recorded</th><th></th></tr></thead>
+    <tbody>
+      {% for g in items %}
+      <tr>
+        <td>{{ g.Fname }} {{ g.Lname }}</td>
+        <td>{{ g.AssessmentType }}</td>
+        <td>{{ g.ScoreObtained }}</td>
+        <td>{{ g.MaxScore }}</td>
+        <td>{{ g.DateRecorded }}</td>
+        <td class="text-end">
+          <button type="button" class="btn btn-sm btn-outline-danger"
+                  hx-post="{{ url_for('grade.delete_grade', grade_id=g.GradeID) }}"
+                  hx-confirm="Delete this grade?"
+                  hx-target="closest tr"
+                  hx-swap="outerHTML swap:200ms">Delete</button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p class="text-muted">No grades found.</p>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,11 @@
+<span class="cell-editor {{ 'cell-error' if error else ('cell-ok' if saved else '') }}">
+  <input type="number" step="0.01" min="0" class="form-control form-control-sm cell-input"
+         name="score" value="{{ score or '' }}" placeholder="—"
+         hx-post="{{ url_for('grade.save_cell') }}"
+         hx-trigger="change"
+         hx-vals='{"enrollment_id": "{{ enrollment_id }}", "assessment_id": "{{ assessment_id }}"}'
+         hx-target="closest span"
+         hx-swap="outerHTML">
+  {% if saved %}<span class="cell-check" aria-hidden="true">&check;</span>{% endif %}
+  {% if error %}<div class="cell-msg">{{ error }}</div>{% endif %}
+</span>

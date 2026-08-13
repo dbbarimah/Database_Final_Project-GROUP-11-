@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Departments{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">Departments</h1>
+  {% if current_role == 'db_admin' %}
+    <a class="btn btn-primary" href="{{ url_for('department.create_department') }}">New Department</a>
+  {% endif %}
+</div>
+<div class="table-responsive">
+  <table class="table table-striped">
+    <thead><tr><th>Code</th><th>Name</th><th>Head of Department</th>{% if current_role == 'db_admin' %}<th></th>{% endif %}</tr></thead>
+    <tbody>
+      {% for d in departments %}
+      <tr>
+        <td>{{ d.DeptCode }}</td>
+        <td>{{ d.DeptName }}</td>
+        <td>{{ (d.HeadFname ~ ' ' ~ d.HeadLname) if d.HeadFname else '—' }}</td>
+        {% if current_role == 'db_admin' %}
+        <td class="text-end">
+          <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('department.edit_department', department_id=d.DepartmentID) }}">Edit</a>
+          <button type="button" class="btn btn-sm btn-outline-danger"
+                  hx-post="{{ url_for('department.delete_department', department_id=d.DepartmentID) }}"
+                  hx-confirm="Delete this department?"
+                  hx-target="closest tr"
+                  hx-swap="outerHTML swap:200ms">Delete</button>
+        </td>
+        {% endif %}
+      </tr>
+      {% else %}
+      <tr><td colspan="4" class="text-muted">No departments found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

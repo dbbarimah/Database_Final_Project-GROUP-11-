@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if student else 'New' }} Student{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">{{ 'Edit' if student else 'New' }} Student</h1>
+<form method="post" class="col-md-6">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="row">
+    <div class="col-md-6 mb-3">
+      <label class="form-label" for="fname">First Name</label>
+      <input class="form-control" id="fname" name="fname" maxlength="50" required
+             value="{{ student.Fname if student else '' }}">
+    </div>
+    <div class="col-md-6 mb-3">
+      <label class="form-label" for="lname">Last Name</label>
+      <input class="form-control" id="lname" name="lname" maxlength="50" required
+             value="{{ student.Lname if student else '' }}">
+    </div>
+  </div>
+  <div class="mb-3">
+    <label class="form-label" for="email">Email</label>
+    <input class="form-control" type="email" id="email" name="email" maxlength="100" required
+           value="{{ student.StudentEmail if student else '' }}">
+  </div>
+  <div class="mb-3">
+    <label class="form-label" for="phone">Phone</label>
+    <input class="form-control" id="phone" name="phone" maxlength="15"
+           value="{{ student.StudentPhone if student else '' }}">
+  </div>
+  <div class="mb-3">
+    <label class="form-label" for="department_id">Department</label>
+    <select class="form-select" id="department_id" name="department_id" required>
+      <option value="" disabled {% if not student %}selected{% endif %}>Choose...</option>
+      {% for d in departments %}
+      <option value="{{ d.DepartmentID }}" {% if student and student.DepartmentID == d.DepartmentID %}selected{% endif %}>
+        {{ d.DeptCode }}
+      </option>
+      {% endfor %}
+    </select>
+  </div>
+  <button class="btn btn-primary" type="submit">Save</button>
+  <a class="btn btn-outline-secondary" href="{{ url_for('student.list_students') }}">Cancel</a>
+</form>
+{% endblock %}

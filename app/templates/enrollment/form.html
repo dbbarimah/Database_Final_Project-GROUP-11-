@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}New Enrollment{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">New Enrollment</h1>
+<form method="post" class="col-md-6">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="mb-3">
+    <label class="form-label" for="student_id">Student</label>
+    <select class="form-select" id="student_id" name="student_id" required>
+      <option value="" disabled selected>Choose...</option>
+      {% for s in students %}
+      <option value="{{ s.StudentID }}">{{ s.Fname }} {{ s.Lname }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="mb-3">
+    <label class="form-label" for="course_id">Course</label>
+    <select class="form-select" id="course_id" name="course_id" required>
+      <option value="" disabled selected>Choose...</option>
+      {% for c in courses %}
+      <option value="{{ c.CourseID }}">{{ c.CourseCode }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="mb-3">
+    <label class="form-label" for="semester">Semester</label>
+    <input class="form-control" id="semester" name="semester" placeholder="2026-S1" pattern="[0-9]{4}-S[12]" required>
+  </div>
+  <div class="mb-3">
+    <label class="form-label" for="enrollment_date">Enrollment Date</label>
+    <input class="form-control" type="date" id="enrollment_date" name="enrollment_date" required>
+  </div>
+  <button class="btn btn-primary" type="submit">Enroll</button>
+  <a class="btn btn-outline-secondary" href="{{ url_for('enrollment.list_enrollments') }}">Cancel</a>
+</form>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if staff_member else 'New' }} Staff Member{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">{{ 'Edit' if staff_member else 'New' }} Staff Member</h1>
+<form method="post" class="col-md-6">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="row">
+    <div class="col-md-6 mb-3">
+      <label class="form-label" for="fname">First Name</label>
+      <input class="form-control" id="fname" name="fname" maxlength="50" required
+             value="{{ staff_member.Fname if staff_member else '' }}">
+    </div>
+    <div class="col-md-6 mb-3">
+      <label class="form-label" for="lname">Last Name</label>
+      <input class="form-control" id="lname" name="lname" maxlength="50" required
+             value="{{ staff_member.Lname if staff_member else '' }}">
+    </div>
+  </div>
+  <div class="mb-3">
+    <label class="form-label" for="email">Email</label>
+    <input class="form-control" type="email" id="email" name="email" maxlength="100" required
+           value="{{ staff_member.StaffEmail if staff_member else '' }}">
+  </div>
+  <div class="mb-3">
+    <label class="form-label" for="phone">Phone</label>
+    <input class="form-control" id="phone" name="phone" maxlength="10"
+           value="{{ staff_member.StaffPhone if staff_member else '' }}">
+  </div>
+  <div class="mb-3">
+    <label class="form-label" for="role">Role</label>
+    <select class="form-select" id="role" name="role" required>
+      {% for r in role_choices %}
+      <option value="{{ r }}" {% if staff_member and staff_member.Role == r %}selected{% endif %}>{{ r }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="mb-3">
+    <label class="form-label" for="department_id">Department</label>
+    <select class="form-select" id="department_id" name="department_id" required>
+      <option value="" disabled {% if not staff_member %}selected{% endif %}>Choose...</option>
+      {% for d in departments %}
+      <option value="{{ d.DepartmentID }}" {% if staff_member and staff_member.DepartmentID == d.DepartmentID %}selected{% endif %}>
+        {{ d.DeptCode }}
+      </option>
+      {% endfor %}
+    </select>
+  </div>
+  <button class="btn btn-primary" type="submit">Save</button>
+  <a class="btn btn-outline-secondary" href="{{ url_for('staff.list_staff') }}">Cancel</a>
+</form>
+{% endblock %}

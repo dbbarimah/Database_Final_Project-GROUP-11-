@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Course Materials{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">Course Materials</h1>
+  <a class="btn btn-primary" href="{{ url_for('course_material.create_material') }}">Upload Material</a>
+</div>
+<div class="table-responsive">
+  <table class="table table-striped">
+    <thead><tr><th>Course</th><th>Title</th><th>Uploaded</th><th></th></tr></thead>
+    <tbody>
+      {% for m in materials %}
+      <tr>
+        <td>{{ m.CourseCode }}</td>
+        <td>{{ m.MaterialTitle }}</td>
+        <td>{{ m.DateUploaded }}</td>
+        <td class="text-end">
+          <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('course_material.download', stored_name=m.FilePath) }}">Download</a>
+          <button type="button" class="btn btn-sm btn-outline-danger"
+                  hx-post="{{ url_for('course_material.delete_material', material_id=m.MaterialID) }}"
+                  hx-confirm="Delete this material?"
+                  hx-target="closest tr"
+                  hx-swap="outerHTML swap:200ms">Delete</button>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="4" class="text-muted">No course materials uploaded yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">{{ title }}</h1>
+  <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('reports.index') }}">All Reports</a>
+</div>
+
+{% for group_name, items in rows|groupby(group_by) %}
+<span class="eyebrow">{{ group_label }}</span>
+<h2 class="h5 mb-2">{{ group_name }}</h2>
+<div class="table-responsive mb-4">
+  <table class="table table-striped report-grouped-table">
+    <thead><tr>{% for h, _ in columns %}<th>{{ h }}</th>{% endfor %}</tr></thead>
+    <tbody>
+      {% for row in items %}
+      <tr>{% for _, getter in columns %}<td>{{ getter(row) }}</td>{% endfor %}</tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p class="text-muted">No data.</p>
+{% endfor %}
+{% endblock %}

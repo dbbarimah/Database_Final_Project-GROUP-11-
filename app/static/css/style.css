@@ -1,0 +1,524 @@
+/* =====================================================================
+   Group 11 Learning Records — design tokens
+   Direction: academic registrar / records ledger. Navy authority, a
+   restrained gold "seal" accent, warm paper instead of clinical white.
+   Serif reserved for the wordmark and page headings; everything a person
+   actually reads or fills in stays in a UI-grade sans; anything that is
+   really a number (scores, %, IDs, semester codes) gets a mono data face.
+   ================================================================== */
+
+:root {
+  --ink: #1c2430;
+  --ink-soft: #4b5563;
+  --paper: #f6f3ec;
+  --paper-raised: #fffdf8;
+  --navy: #1e3a5f;
+  --navy-deep: #14283f;
+  --navy-100: #e7edf3;
+  --gold: #b8862e;
+  --gold-soft: #e7c988;
+  --rule: #ddd5c3;
+  --ok: #3f7a55;
+  --ok-bg: #e8f1ea;
+  --warn: #a8672a;
+  --warn-bg: #f6ece0;
+  --danger: #a23b32;
+  --danger-bg: #f6e6e3;
+  --info: #3d6b8a;
+  --info-bg: #e6eef3;
+
+  --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --radius: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+
+html, body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+}
+
+body {
+  font-size: 0.9375rem;
+}
+
+h1, h2, h3, .app-wordmark-mark {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+
+a { color: var(--navy); }
+a:hover { color: var(--gold); }
+
+/* ---- Navbar: the registrar's counter -------------------------------- */
+
+.app-navbar {
+  background: var(--navy-deep);
+  border-bottom: 3px solid var(--gold);
+  padding-top: 0.65rem;
+  padding-bottom: 0.65rem;
+}
+
+.app-wordmark {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.05;
+  padding: 0;
+}
+
+.app-wordmark-mark {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.app-wordmark-sub {
+  font-family: var(--font-body);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold-soft);
+}
+
+.app-navbar .nav-link {
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.app-navbar .nav-link:hover,
+.app-navbar .nav-link:focus-visible {
+  color: #fff;
+}
+
+.app-navbar .nav-link.active {
+  color: #fff;
+}
+
+.app-navbar .dropdown-menu {
+  margin-top: 0.5rem;
+  padding: 0.4rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--paper-raised);
+  box-shadow: 0 8px 20px rgba(20, 40, 63, 0.18);
+}
+
+.app-navbar .dropdown-item {
+  border-radius: 4px;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.app-navbar .dropdown-item:hover,
+.app-navbar .dropdown-item:focus {
+  background: var(--navy-100);
+  color: var(--navy);
+}
+
+.app-navbar .dropdown-divider {
+  border-color: var(--rule);
+  margin: 0.35rem 0;
+}
+
+.app-identity {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.role-chip {
+  display: inline-block;
+  margin-left: 0.35rem;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  background: var(--gold);
+  color: var(--navy-deep);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.app-logout {
+  border-color: rgba(255, 255, 255, 0.35);
+  color: rgba(255, 255, 255, 0.9);
+}
+.app-logout:hover {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--navy-deep);
+}
+
+/* ---- Buttons ---------------------------------------------------------- */
+
+.btn {
+  font-weight: 500;
+  border-radius: var(--radius);
+}
+
+.btn-primary {
+  --bs-btn-bg: var(--navy);
+  --bs-btn-border-color: var(--navy);
+  --bs-btn-hover-bg: var(--navy-deep);
+  --bs-btn-hover-border-color: var(--navy-deep);
+  --bs-btn-active-bg: var(--navy-deep);
+  --bs-btn-active-border-color: var(--navy-deep);
+  --bs-btn-focus-shadow-rgb: 30, 58, 95;
+}
+
+.btn-outline-secondary {
+  --bs-btn-color: var(--navy);
+  --bs-btn-border-color: var(--rule);
+  --bs-btn-hover-bg: var(--navy-100);
+  --bs-btn-hover-border-color: var(--navy);
+  --bs-btn-hover-color: var(--navy);
+}
+
+.btn-outline-danger {
+  --bs-btn-color: var(--danger);
+  --bs-btn-border-color: #d8b9b4;
+  --bs-btn-hover-bg: var(--danger);
+  --bs-btn-hover-border-color: var(--danger);
+}
+
+.btn:focus-visible,
+.form-control:focus-visible,
+.form-select:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+.btn:focus,
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--navy);
+  box-shadow: 0 0 0 0.2rem rgba(30, 58, 95, 0.15);
+}
+
+/* ---- Cards -------------------------------------------------------------- */
+
+.card {
+  background: var(--paper-raised);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  box-shadow: 0 1px 2px rgba(28, 36, 48, 0.06);
+}
+
+.card .display-6 {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  color: var(--navy);
+}
+
+.stat-tile {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  transition: box-shadow 150ms ease, border-color 150ms ease, transform 150ms ease;
+}
+.stat-tile:hover,
+.stat-tile:focus-visible {
+  color: inherit;
+  border-color: var(--gold);
+  box-shadow: 0 6px 16px rgba(28, 36, 48, 0.14);
+  transform: translateY(-2px);
+}
+
+/* ---- Course cards (student dashboard) ---------------------------------- */
+
+.course-card {
+  background: var(--paper-raised);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 1px 2px rgba(28, 36, 48, 0.06);
+  transition: box-shadow 150ms ease, transform 150ms ease;
+}
+.course-card:hover {
+  box-shadow: 0 6px 16px rgba(28, 36, 48, 0.14);
+  transform: translateY(-2px);
+}
+
+.course-banner {
+  height: 84px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.course-banner-code {
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: #fff;
+}
+
+.banner-navy   { background: linear-gradient(135deg, #1e3a5f, #14283f); }
+.banner-bronze { background: linear-gradient(135deg, #8a6323, #5f4419); }
+.banner-forest { background: linear-gradient(135deg, #3c6b4c, #274a34); }
+.banner-slate  { background: linear-gradient(135deg, #35566d, #223c4c); }
+.banner-plum   { background: linear-gradient(135deg, #6b3f52, #4a2b39); }
+
+.course-card-body {
+  padding: 0.85rem 1rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.course-card-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--ink);
+  line-height: 1.3;
+}
+
+.course-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+}
+
+.status-pill {
+  display: inline-block;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+.status-active    { background: var(--ok-bg); color: var(--ok); }
+.status-inactive  { background: var(--warn-bg); color: var(--warn); }
+.status-completed { background: var(--navy-100); color: var(--navy); }
+
+/* ---- Tables: the ledger --------------------------------------------- */
+
+.table {
+  --bs-table-bg: transparent;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.table thead th {
+  font-family: var(--font-body);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  border-bottom: 2px solid var(--rule);
+  background: var(--paper-raised);
+}
+
+.table td {
+  border-color: var(--rule);
+  font-size: 0.9rem;
+  position: relative;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) > * {
+  --bs-table-accent-bg: rgba(221, 213, 195, 0.28);
+}
+
+.table tbody tr {
+  transition: box-shadow 120ms ease;
+}
+
+.table tbody tr:hover {
+  box-shadow: inset 3px 0 0 var(--gold);
+}
+
+/* numeric / code-like columns read better in mono */
+td.num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Grouped reports render one <table> per section, so each one needs
+   locked column widths -- otherwise the browser auto-sizes each table's
+   columns off its own content and the headers drift out of alignment
+   between sections. Equal widths (rather than a hardcoded ratio) keep
+   this correct regardless of how many columns a given report has. */
+.report-grouped-table {
+  table-layout: fixed;
+}
+.report-grouped-table th,
+.report-grouped-table td {
+  width: auto;
+}
+
+.text-muted {
+  color: var(--ink-soft) !important;
+}
+
+/* ---- Forms -------------------------------------------------------------- */
+
+.form-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.form-control, .form-select {
+  border-color: var(--rule);
+  border-radius: var(--radius);
+  background: var(--paper-raised);
+}
+
+.form-text {
+  font-size: 0.8125rem;
+}
+
+/* ---- Alerts --------------------------------------------------------------- */
+
+.alert {
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+}
+.alert-success { background: var(--ok-bg); border-color: #cfe3d5; color: var(--ok); }
+.alert-danger  { background: var(--danger-bg); border-color: #e3c6c1; color: var(--danger); }
+.alert-info    { background: var(--info-bg); border-color: #c7dae4; color: var(--info); }
+.alert-warning { background: var(--warn-bg); border-color: #e8d2ba; color: var(--warn); }
+
+/* ---- Badges (status pills in tables, distinct from the role chip) --- */
+
+.badge.bg-secondary {
+  background: var(--navy-100) !important;
+  color: var(--navy) !important;
+  font-family: var(--font-mono);
+  font-weight: 500;
+}
+
+/* ---- Login: the registration card ------------------------------------ */
+
+.login-card {
+  background: var(--paper-raised);
+  border: 1px solid var(--rule);
+  border-top: 3px solid var(--gold);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 16px rgba(28, 36, 48, 0.08);
+}
+
+.login-wordmark {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 0.1rem;
+}
+
+.login-subtitle {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 1.5rem;
+}
+
+/* ---- List group (reports index) --------------------------------------- */
+
+.list-group-item {
+  border-color: var(--rule);
+  font-weight: 500;
+}
+.list-group-item-action:hover {
+  background: var(--navy-100);
+  color: var(--navy);
+}
+
+/* ---- Inline gradebook / attendance cells ------------------------------ */
+
+.cell-editor {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  position: relative;
+}
+
+.cell-input {
+  width: 5.5rem;
+  font-family: var(--font-mono);
+}
+
+.cell-editor select.cell-input {
+  width: auto;
+}
+
+.cell-check {
+  color: var(--ok);
+  font-weight: 700;
+  opacity: 0;
+  animation: cell-check-in 200ms ease forwards, cell-check-out 400ms ease 1.6s forwards;
+}
+
+@keyframes cell-check-in {
+  from { opacity: 0; transform: translateY(2px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes cell-check-out {
+  to { opacity: 0; }
+}
+
+.cell-editor.cell-error .cell-input {
+  border-color: var(--danger);
+  background: var(--danger-bg);
+}
+
+.cell-msg {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 5;
+  margin-top: 0.15rem;
+  padding: 0.25rem 0.5rem;
+  background: var(--danger);
+  color: #fff;
+  font-size: 0.75rem;
+  font-family: var(--font-body);
+  border-radius: var(--radius);
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(28, 36, 48, 0.2);
+}
+
+.gradebook td, .attendance-grid td {
+  vertical-align: middle;
+}
+
+.htmx-request.cell-editor,
+.cell-editor.htmx-request {
+  opacity: 0.6;
+}
+
+/* ---- Utility ------------------------------------------------------------ */
+
+.eyebrow {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 0.25rem;
+}

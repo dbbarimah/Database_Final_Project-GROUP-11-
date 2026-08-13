@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}My Enrollments{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">My Enrollments</h1>
+<div class="table-responsive">
+  <table class="table table-striped">
+    <thead><tr><th>Semester</th><th>Course</th><th>Credit Hours</th><th>Enrolled</th><th>Status</th></tr></thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td>{{ r.Semester }}</td>
+        <td>{{ r.CourseCode }} &mdash; {{ r.CourseTitle }}</td>
+        <td>{{ r.CreditHours }}</td>
+        <td>{{ r.EnrollmentDate }}</td>
+        <td>{{ r.EnrollmentStatus }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="text-muted">No enrollments on record.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

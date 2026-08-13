@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Record Attendance{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">Record Attendance</h1>
+
+<form method="get" class="row g-2 align-items-end mb-3">
+  <input type="hidden" name="session_date" value="{{ session_date }}">
+  <div class="col-auto">
+    <label class="form-label" for="pick">Class</label>
+    <select class="form-select" id="pick" name="pick" onchange="
+        const [cid, sem] = this.value.split('|');
+        const u = new URL(window.location);
+        u.searchParams.set('course_id', cid);
+        u.searchParams.set('semester', sem);
+        window.location = u;
+      ">
+      <option value="" disabled {% if not course_id %}selected{% endif %}>Choose a class...</option>
+      {% for t in teaching %}
+      <option value="{{ t.CourseID }}|{{ t.Semester }}" {% if course_id == t.CourseID and semester == t.Semester %}selected{% endif %}>
+        {{ t.CourseCode }} &mdash; {{ t.Semester }}
+      </option>
+      {% endfor %}
+    </select>
+  </div>
+</form>
+
+{% if roster %}
+<div class="row g-2 align-items-end mb-4">
+  <div class="col-auto">
+    <label class="form-label" for="session_date">Session Date</label>
+    <input class="form-control" type="date" id="session_date" name="session_date" value="{{ session_date }}"
+           onchange="
+             const u = new URL(window.location);
+             u.searchParams.set('session_date', this.value);
+             window.location = u;
+           ">
+    <div class="form-text">Pick a date to load an existing roll call, or a new date to start one. Each status saves as you set it.</div>
+  </div>
+</div>
+
+<div class="table-responsive">
+  <table class="table table-striped attendance-grid">
+    <thead><tr><th>Student</th><th>Email</th><th>Status</th></tr></thead>
+    <tbody>
+      {% for r in roster %}
+      {% set enrollment_id = r.EnrollmentID %}
+      {% set status = r.ExistingStatus %}
+      {% set error = None %}
+      {% set saved = false %}
+      <tr>
+        <td>{{ r.Fname }} {{ r.Lname }}</td>
+        <td>{{ r.StudentEmail }}</td>
+        <td>
+          {% include "attendance/_cell.html" %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Record Grades{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">Record Grades</h1>
+
+<form method="get" class="row g-2 align-items-end mb-3">
+  <div class="col-auto">
+    <label class="form-label" for="pick">Class</label>
+    <select class="form-select" id="pick" name="pick" onchange="
+        const [cid, sem] = this.value.split('|');
+        window.location = '{{ url_for('grade.record_grade') }}?course_id=' + cid + '&semester=' + sem;
+      ">
+      <option value="" disabled {% if not course_id %}selected{% endif %}>Choose a class...</option>
+      {% for t in teaching %}
+      <option value="{{ t.CourseID }}|{{ t.Semester }}" {% if course_id == t.CourseID and semester == t.Semester %}selected{% endif %}>
+        {{ t.CourseCode }} &mdash; {{ t.Semester }}
+      </option>
+      {% endfor %}
+    </select>
+  </div>
+</form>
+
+{% if class_assessments %}
+<form method="get" class="row g-2 align-items-end mb-4">
+  <input type="hidden" name="course_id" value="{{ course_id }}">
+  <input type="hidden" name="semester" value="{{ semester }}">
+  <div class="col-auto">
+    <label class="form-label" for="assessment_id">Assessment</label>
+    <select class="form-select" id="assessment_id" name="assessment_id" onchange="this.form.requestSubmit()">
+      <option value="" disabled {% if not assessment_id %}selected{% endif %}>Choose...</option>
+      {% for a in class_assessments %}
+      <option value="{{ a.AssessmentID }}" {% if assessment_id == a.AssessmentID %}selected{% endif %}>
+        {{ a.AssessmentType }} (max {{ a.MaxScore }})
+      </option>
+      {% endfor %}
+    </select>
+  </div>
+</form>
+{% elif course_id %}
+<p class="text-muted">No assessments exist yet for that course. Ask an administrator to create one.</p>
+{% endif %}
+
+{% if roster %}
+<p class="text-muted small">Scores save as soon as you leave the field &mdash; no submit button needed.</p>
+<div class="table-responsive">
+  <table class="table table-striped gradebook">
+    <thead><tr><th>Student</th><th>Email</th><th>Score</th></tr></thead>
+    <tbody>
+      {% for r in roster %}
+      {% set enrollment_id = r.EnrollmentID %}
+      {% set score = r.ExistingScore %}
+      {% set error = None %}
+      {% set saved = false %}
+      <tr>
+        <td>{{ r.Fname }} {{ r.Lname }}</td>
+        <td>{{ r.StudentEmail }}</td>
+        <td>
+          {% include "grade/_cell.html" %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+{% endblock %}

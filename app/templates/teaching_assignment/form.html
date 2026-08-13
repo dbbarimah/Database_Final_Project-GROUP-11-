@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}New Teaching Assignment{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">New Teaching Assignment</h1>
+<form method="post" class="col-md-6">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="mb-3">
+    <label class="form-label" for="course_id">Course</label>
+    <select class="form-select" id="course_id" name="course_id" required>
+      <option value="" disabled selected>Choose...</option>
+      {% for c in courses %}
+      <option value="{{ c.CourseID }}">{{ c.CourseCode }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="mb-3">
+    <label class="form-label" for="assignee_id">Staff Member</label>
+    <select class="form-select" id="assignee_id" name="assignee_id" required>
+      <option value="" disabled selected>Choose...</option>
+      {% for s in staff %}
+      <option value="{{ s.StaffID }}">{{ s.Fname }} {{ s.Lname }} ({{ s.Role }})</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="mb-3">
+    <label class="form-label" for="semester">Semester</label>
+    <input class="form-control" id="semester" name="semester" placeholder="2026-S1" pattern="[0-9]{4}-S[12]" required>
+    <div class="form-text">Format: YYYY-S1 or YYYY-S2. A faculty intern can only hold one course per semester.</div>
+  </div>
+  <button class="btn btn-primary" type="submit">Save</button>
+  <a class="btn btn-outline-secondary" href="{{ url_for('teaching_assignment.list_assignments') }}">Cancel</a>
+</form>
+{% endblock %}

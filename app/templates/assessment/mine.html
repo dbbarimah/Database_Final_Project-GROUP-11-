@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}My Assessments{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">My Assessments</h1>
+<p class="text-muted small">Shows assessments only for courses you're currently actively enrolled in.</p>
+<div class="table-responsive">
+  <table class="table table-striped">
+    <thead><tr><th>Course</th><th>Semester</th><th>Type</th><th>Max Score</th><th>Weight %</th><th>Due Date</th></tr></thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td>{{ r.CourseCode }} &mdash; {{ r.CourseTitle }}</td>
+        <td>{{ r.Semester }}</td>
+        <td>{{ r.AssessmentType }}</td>
+        <td>{{ r.MaxScore }}</td>
+        <td>{{ r.WeightPercent }}</td>
+        <td>{{ r.DueDate or '—' }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6" class="text-muted">No assessments found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

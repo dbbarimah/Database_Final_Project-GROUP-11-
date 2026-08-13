@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Class List{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">Class List</h1>
+<div class="table-responsive">
+  <table class="table table-striped">
+    <thead><tr><th>Semester</th><th>Course</th><th>Student</th><th>Email</th><th>Status</th></tr></thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td>{{ r.Semester }}</td>
+        <td>{{ r.CourseCode }} &mdash; {{ r.CourseTitle }}</td>
+        <td>{{ r.Fname }} {{ r.Lname }}</td>
+        <td>{{ r.StudentEmail }}</td>
+        <td>{{ r.EnrollmentStatus }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="text-muted">No students in your classes yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

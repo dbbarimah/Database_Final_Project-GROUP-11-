@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if assessment else 'New' }} Assessment{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">{{ 'Edit' if assessment else 'New' }} Assessment</h1>
+<form method="post" class="col-md-6">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="mb-3">
+    <label class="form-label" for="course_id">Course</label>
+    <select class="form-select" id="course_id" name="course_id" required>
+      <option value="" disabled {% if not assessment %}selected{% endif %}>Choose...</option>
+      {% for c in courses %}
+      <option value="{{ c.CourseID }}" {% if assessment and assessment.CourseID == c.CourseID %}selected{% endif %}>
+        {{ c.CourseCode }}
+      </option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="mb-3">
+    <label class="form-label" for="assessment_type">Type</label>
+    <select class="form-select" id="assessment_type" name="assessment_type" required>
+      {% for t in type_choices %}
+      <option value="{{ t }}" {% if assessment and assessment.AssessmentType == t %}selected{% endif %}>{{ t }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="row">
+    <div class="col-md-6 mb-3">
+      <label class="form-label" for="max_score">Max Score</label>
+      <input class="form-control" type="number" step="0.01" min="0.01" id="max_score" name="max_score" required
+             value="{{ assessment.MaxScore if assessment else '' }}">
+    </div>
+    <div class="col-md-6 mb-3">
+      <label class="form-label" for="weight_percent">Weight %</label>
+      <input class="form-control" type="number" step="0.01" min="0" max="100" id="weight_percent" name="weight_percent" required
+             value="{{ assessment.WeightPercent if assessment else '' }}">
+    </div>
+  </div>
+  <div class="mb-3">
+    <label class="form-label" for="due_date">Due Date</label>
+    <input class="form-control" type="date" id="due_date" name="due_date"
+           value="{{ assessment.DueDate if assessment else '' }}">
+  </div>
+  <button class="btn btn-primary" type="submit">Save</button>
+  <a class="btn btn-outline-secondary" href="{{ url_for('assessment.list_assessments') }}">Cancel</a>
+</form>
+{% endblock %}

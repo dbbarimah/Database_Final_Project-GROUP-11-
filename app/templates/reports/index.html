@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Reports{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">Reports</h1>
+<div class="list-group col-md-6">
+  {% for key, spec in reports.items() %}
+  <a class="list-group-item list-group-item-action" href="{{ url_for('reports.show', report_key=key) }}">{{ spec.title }}</a>
+  {% endfor %}
+</div>
+{% endblock %}

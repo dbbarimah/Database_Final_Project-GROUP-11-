@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Courses{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">Courses</h1>
+  {% if current_role == 'db_admin' %}
+    <a class="btn btn-primary" href="{{ url_for('course.create_course') }}">New Course</a>
+  {% endif %}
+</div>
+<input type="search" class="form-control mb-2" placeholder="Search courses&hellip;" data-filter-target="#courses-table">
+<div class="table-responsive">
+  <table class="table table-striped" id="courses-table">
+    <thead><tr><th>Code</th><th>Title</th><th>Credit Hours</th><th>Department</th>{% if current_role == 'db_admin' %}<th></th>{% endif %}</tr></thead>
+    <tbody>
+      {% for c in courses %}
+      <tr>
+        <td>{{ c.CourseCode }}</td>
+        <td>{{ c.CourseTitle }}</td>
+        <td>{{ c.CreditHours }}</td>
+        <td>{{ c.DeptCode }}</td>
+        {% if current_role == 'db_admin' %}
+        <td class="text-end">
+          <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('course.edit_course', course_id=c.CourseID) }}">Edit</a>
+          <button type="button" class="btn btn-sm btn-outline-danger"
+                  hx-post="{{ url_for('course.delete_course', course_id=c.CourseID) }}"
+                  hx-confirm="Delete this course?"
+                  hx-target="closest tr"
+                  hx-swap="outerHTML swap:200ms">Delete</button>
+        </td>
+        {% endif %}
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="text-muted">No courses found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <p class="text-muted d-none" data-filter-empty>No courses match that search.</p>
+</div>
+{% endblock %}

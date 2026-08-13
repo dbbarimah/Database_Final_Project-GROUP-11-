@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}My Materials{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">My Course Materials</h1>
+<p class="text-muted small">Shows materials only for courses you're currently actively enrolled in.</p>
+<div class="table-responsive">
+  <table class="table table-striped">
+    <thead><tr><th>Course</th><th>Semester</th><th>Title</th><th>Uploaded</th><th></th></tr></thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td>{{ r.CourseCode }} &mdash; {{ r.CourseTitle }}</td>
+        <td>{{ r.Semester }}</td>
+        <td>{{ r.MaterialTitle }}</td>
+        <td>{{ r.DateUploaded }}</td>
+        <td class="text-end">
+          <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('course_material.download', stored_name=r.FilePath) }}">Download</a>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="text-muted">No materials available yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

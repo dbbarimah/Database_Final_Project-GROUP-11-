@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Log in{% endblock %}
+{% block content %}
+<div class="row justify-content-center mt-5">
+  <div class="col-md-4">
+    <div class="login-card">
+      <div class="card-body p-4">
+        <div class="login-wordmark">Group 11</div>
+        <div class="login-subtitle">Learning Records</div>
+        <p class="text-muted small">
+          Use your institutional email's local part as your username
+          (e.g. <code>ama.amoako</code>), same as your MariaDB account.
+        </p>
+        <form method="post">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <div class="mb-3">
+            <label class="form-label" for="username">Username</label>
+            <input class="form-control" type="text" id="username" name="username" autofocus required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="password">Password</label>
+            <input class="form-control" type="password" id="password" name="password" required>
+          </div>
+          <button class="btn btn-primary w-100" type="submit">Log in</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

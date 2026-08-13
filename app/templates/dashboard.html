@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<span class="eyebrow">Overview</span>
+<h1 class="h3 mb-4">Welcome, {{ current_display_name }}</h1>
+
+{% if role == 'db_admin' %}
+  <div class="row g-3 mb-4">
+    <div class="col-sm-3">
+      <a class="card text-center stat-tile" href="{{ url_for('student.list_students') }}">
+        <div class="card-body">
+          <div class="display-6">{{ student_count }}</div><div class="text-muted">Students</div>
+        </div>
+      </a>
+    </div>
+    <div class="col-sm-3">
+      <a class="card text-center stat-tile" href="{{ url_for('staff.list_staff') }}">
+        <div class="card-body">
+          <div class="display-6">{{ staff_count }}</div><div class="text-muted">Staff</div>
+        </div>
+      </a>
+    </div>
+    <div class="col-sm-3">
+      <a class="card text-center stat-tile" href="{{ url_for('course.list_courses') }}">
+        <div class="card-body">
+          <div class="display-6">{{ course_count }}</div><div class="text-muted">Courses</div>
+        </div>
+      </a>
+    </div>
+    <div class="col-sm-3">
+      <a class="card text-center stat-tile" href="{{ url_for('enrollment.list_enrollments') }}">
+        <div class="card-body">
+          <div class="display-6">{{ enrollment_count }}</div><div class="text-muted">Enrollments</div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <h2 class="h5">Department overview</h2>
+  <div class="table-responsive">
+    <table class="table table-sm table-striped">
+      <thead><tr><th>Code</th><th>Name</th><th>Head</th><th>Staff</th><th>Students</th><th>Courses</th></tr></thead>
+      <tbody>
+        {% for d in departments %}
+        <tr>
+          <td class="num">{{ d.DeptCode }}</td>
+          <td>{{ d.DeptName }}</td>
+          <td>{{ d.HeadOfDepartment or '—' }}</td>
+          <td class="num">{{ d.StaffCount }}</td>
+          <td class="num">{{ d.StudentCount }}</td>
+          <td class="num">{{ d.CourseCount }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+{% elif role in ('lecturer', 'faculty_intern') %}
+  <h2 class="h5 mb-3">Your Courses</h2>
+  <div class="row g-3">
+    {% for t in teaching %}
+    <div class="col-sm-6 col-lg-4">
+      <div class="course-card">
+        <div class="course-banner banner-{{ t.BannerClass }}">
+          <span class="course-banner-code">{{ t.CourseCode }}</span>
+        </div>
+        <div class="course-card-body">
+          <div class="course-card-title">{{ t.CourseTitle }}</div>
+          <div class="text-muted small">{{ t.CreditHours }} Credit Hours</div>
+          <div class="course-card-meta">
+            <span class="num text-muted">{{ t.Semester }}</span>
+            <span class="badge bg-secondary">{{ t.DeptCode }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <p class="text-muted">No teaching assignments on record.</p>
+    {% endfor %}
+  </div>
+
+{% elif role == 'student' %}
+  {% if profile %}
+  <p class="text-muted">{{ profile.StudentEmail }} &middot; {{ profile.DeptName }}</p>
+  {% endif %}
+  <h2 class="h5 mb-3">Your Courses</h2>
+  <div class="row g-3">
+    {% for e in enrollments %}
+    <div class="col-sm-6 col-lg-4">
+      <div class="course-card">
+        <div class="course-banner banner-{{ e.BannerClass }}">
+          <span class="course-banner-code">{{ e.CourseCode }}</span>
+        </div>
+        <div class="course-card-body">
+          <div class="course-card-title">{{ e.CourseTitle }}</div>
+          <div class="course-card-meta">
+            <span class="num text-muted">{{ e.Semester }}</span>
+            <span class="status-pill status-{{ e.EnrollmentStatus|lower }}">{{ e.EnrollmentStatus }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <p class="text-muted">No enrollments on record.</p>
+    {% endfor %}
+  </div>
+{% endif %}
+{% endblock %}

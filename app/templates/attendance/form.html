@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Record Attendance{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">Record Attendance</h1>
+<form method="post" class="col-md-6">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="mb-3">
+    <label class="form-label" for="enrollment_id">Enrollment</label>
+    <select class="form-select" id="enrollment_id" name="enrollment_id" required>
+      <option value="" disabled selected>Choose...</option>
+      {% for e in enrollments %}
+      <option value="{{ e.EnrollmentID }}">{{ e.Fname }} {{ e.Lname }} &mdash; {{ e.CourseCode }} ({{ e.Semester }})</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="mb-3">
+    <label class="form-label" for="session_date">Session Date</label>
+    <input class="form-control" type="date" id="session_date" name="session_date" required>
+  </div>
+  <div class="mb-3">
+    <label class="form-label" for="status">Status</label>
+    <select class="form-select" id="status" name="status" required>
+      {% for s in status_choices %}
+      <option value="{{ s }}">{{ s }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <button class="btn btn-primary" type="submit">Save</button>
+  <a class="btn btn-outline-secondary" href="{{ url_for('attendance.list_attendance') }}">Cancel</a>
+</form>
+{% endblock %}

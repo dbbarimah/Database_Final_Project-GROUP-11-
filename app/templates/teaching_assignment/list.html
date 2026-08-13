@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Teaching Assignments{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">Teaching Assignments</h1>
+  <a class="btn btn-primary" href="{{ url_for('teaching_assignment.create_assignment') }}">New Assignment</a>
+</div>
+
+{% for course_label, items in assignments|groupby('CourseLabel') %}
+<span class="eyebrow">Course</span>
+<h2 class="h5 mb-2">{{ course_label }}</h2>
+<div class="table-responsive mb-4">
+  <table class="table table-striped report-grouped-table">
+    <thead><tr><th>Semester</th><th>Staff</th><th>Role</th><th></th></tr></thead>
+    <tbody>
+      {% for a in items %}
+      <tr>
+        <td>{{ a.Semester }}</td>
+        <td>{{ a.Fname }} {{ a.Lname }}</td>
+        <td>{{ a.Role }}</td>
+        <td class="text-end">
+          <button type="button" class="btn btn-sm btn-outline-danger"
+                  hx-post="{{ url_for('teaching_assignment.delete_assignment', assignment_id=a.AssignmentID) }}"
+                  hx-confirm="Delete this assignment?"
+                  hx-target="closest tr"
+                  hx-swap="outerHTML swap:200ms">Delete</button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p class="text-muted">No teaching assignments found.</p>
+{% endfor %}
+{% endblock %}

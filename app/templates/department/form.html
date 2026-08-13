@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if department else 'New' }} Department{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">{{ 'Edit' if department else 'New' }} Department</h1>
+<form method="post" class="col-md-6">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="mb-3">
+    <label class="form-label" for="dept_code">Department Code</label>
+    <input class="form-control" id="dept_code" name="dept_code" maxlength="10" required
+           value="{{ department.DeptCode if department else '' }}">
+  </div>
+  <div class="mb-3">
+    <label class="form-label" for="dept_name">Department Name</label>
+    <input class="form-control" id="dept_name" name="dept_name" maxlength="100" required
+           value="{{ department.DeptName if department else '' }}">
+  </div>
+  <div class="mb-3">
+    <label class="form-label" for="head_id">Head of Department</label>
+    <select class="form-select" id="head_id" name="head_id">
+      <option value="">— None —</option>
+      {% for s in staff %}
+      <option value="{{ s.StaffID }}" {% if department and department.HeadID == s.StaffID %}selected{% endif %}>
+        {{ s.Fname }} {{ s.Lname }}
+      </option>
+      {% endfor %}
+    </select>
+  </div>
+  <button class="btn btn-primary" type="submit">Save</button>
+  <a class="btn btn-outline-secondary" href="{{ url_for('department.list_departments') }}">Cancel</a>
+</form>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if course else 'New' }} Course{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">{{ 'Edit' if course else 'New' }} Course</h1>
+<form method="post" class="col-md-6">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="mb-3">
+    <label class="form-label" for="course_code">Course Code</label>
+    <input class="form-control" id="course_code" name="course_code" maxlength="10" required
+           value="{{ course.CourseCode if course else '' }}">
+  </div>
+  <div class="mb-3">
+    <label class="form-label" for="course_title">Course Title</label>
+    <input class="form-control" id="course_title" name="course_title" maxlength="150" required
+           value="{{ course.CourseTitle if course else '' }}">
+  </div>
+  <div class="mb-3">
+    <label class="form-label" for="credit_hours">Credit Hours</label>
+    <input class="form-control" type="number" step="0.01" min="0" id="credit_hours" name="credit_hours" required
+           value="{{ course.CreditHours if course else '' }}">
+  </div>
+  <div class="mb-3">
+    <label class="form-label" for="department_id">Department</label>
+    <select class="form-select" id="department_id" name="department_id" required>
+      <option value="" disabled {% if not course %}selected{% endif %}>Choose...</option>
+      {% for d in departments %}
+      <option value="{{ d.DepartmentID }}" {% if course and course.DepartmentID == d.DepartmentID %}selected{% endif %}>
+        {{ d.DeptCode }}
+      </option>
+      {% endfor %}
+    </select>
+  </div>
+  <button class="btn btn-primary" type="submit">Save</button>
+  <a class="btn btn-outline-secondary" href="{{ url_for('course.list_courses') }}">Cancel</a>
+</form>
+{% endblock %}

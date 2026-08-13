@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}My Grades{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">My Grades</h1>
+<div class="table-responsive">
+  <table class="table table-striped">
+    <thead><tr><th>Course</th><th>Semester</th><th>Assessment</th><th>Score</th><th>Max</th><th>%</th></tr></thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td>{{ r.CourseCode }} &mdash; {{ r.CourseTitle }}</td>
+        <td>{{ r.Semester }}</td>
+        <td>{{ r.AssessmentType }}</td>
+        <td>{{ r.ScoreObtained }}</td>
+        <td>{{ r.MaxScore }}</td>
+        <td>{{ r.PercentScore }}%</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6" class="text-muted">No grades recorded yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

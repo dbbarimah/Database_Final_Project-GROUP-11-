@@ -1,0 +1,17 @@
+<span class="cell-editor {{ 'cell-error' if error else ('cell-ok' if saved else '') }}">
+  <select class="form-select form-select-sm cell-input"
+          name="status"
+          hx-post="{{ url_for('attendance.save_cell') }}"
+          hx-trigger="change"
+          hx-vals='{"enrollment_id": "{{ enrollment_id }}"}'
+          hx-include="#session_date"
+          hx-target="closest span"
+          hx-swap="outerHTML">
+    <option value="" {% if not status %}selected{% endif %}>Select&hellip;</option>
+    {% for s in status_choices %}
+    <option value="{{ s }}" {% if status == s %}selected{% endif %}>{{ s }}</option>
+    {% endfor %}
+  </select>
+  {% if saved %}<span class="cell-check" aria-hidden="true">&check;</span>{% endif %}
+  {% if error %}<div class="cell-msg">{{ error }}</div>{% endif %}
+</span>

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}My Attendance{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">My Attendance</h1>
+<div class="table-responsive">
+  <table class="table table-striped">
+    <thead><tr><th>Date</th><th>Course</th><th>Semester</th><th>Status</th></tr></thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td>{{ r.SessionDate }}</td>
+        <td>{{ r.CourseCode }} &mdash; {{ r.CourseTitle }}</td>
+        <td>{{ r.Semester }}</td>
+        <td>{{ r.AttendanceStatus }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="4" class="text-muted">No attendance recorded yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
