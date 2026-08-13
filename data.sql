@@ -2,11 +2,6 @@
 the tables have been created (Phase 5)
 At least 30 entries for the major tables.
 Does not need to be real or existing data.
-
-NOTE: Semester values updated to the 'YYYY-S1'/'YYYY-S2' format required by
-the CHECK constraint in the current schema.sql (Semester REGEXP '^[0-9]{4}-S[12]$').
-The old CHAR(1) '1'/'2' values ('S1' = Jan-ish dates, 'S2' = Jun/Jul-onward
-dates below) have been mapped to '2026-S1' and '2026-S2' respectively.
 */
 USE Group11_FinalProject;
 
