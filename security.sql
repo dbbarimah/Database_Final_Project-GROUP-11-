@@ -294,9 +294,10 @@ GRANT EXECUTE ON FUNCTION Group11_FinalProject.fn_may_teach           TO lecture
 
 
 
--- Secure grade, attendance, and material procedures
+-- Securing Grades, Attendance, and Course Material Procedures
 DELIMITER $$
 
+  -- Safely recording a student’s grade for an assigned course
 DROP PROCEDURE IF EXISTS sp_secure_record_grade$$
 CREATE DEFINER = 'lms_owner'@'localhost'
 PROCEDURE sp_secure_record_grade(
@@ -340,7 +341,7 @@ BEGIN
     DateRecorded  = CURDATE();
 END$$
 
-
+-- Safely recording a student’s attendance for an assigned course
 DROP PROCEDURE IF EXISTS sp_secure_record_attendance$$
 CREATE DEFINER = 'lms_owner'@'localhost'
 PROCEDURE sp_secure_record_attendance(
@@ -374,7 +375,7 @@ BEGIN
   ON DUPLICATE KEY UPDATE AttendanceStatus = p_status;
 END$$
 
-
+-- Safely adding a Course Material to an assigned course
 DROP PROCEDURE IF EXISTS sp_secure_add_material$$
 CREATE DEFINER = 'lms_owner'@'localhost'
 PROCEDURE sp_secure_add_material(
@@ -395,14 +396,20 @@ END$$
 
 DELIMITER ;
 
+
 -- Procedure privileges
+-- Gives the lecturers and faculty interns permission to use the secure grade, attendance and material procedures
 GRANT EXECUTE ON PROCEDURE Group11_FinalProject.sp_secure_record_grade
   TO lecturer, faculty_intern;
 GRANT EXECUTE ON PROCEDURE Group11_FinalProject.sp_secure_record_attendance
   TO lecturer, faculty_intern;
 GRANT EXECUTE ON PROCEDURE Group11_FinalProject.sp_secure_add_material
   TO lecturer, faculty_intern;
+
+
+
 -- Demonstration login accounts
+-- Creates sample accounts for testing each role: admin, lecturer, intern, and student
 CREATE USER IF NOT EXISTS 'lms_dba'@'localhost'
   IDENTIFIED BY 'ChangeMe_DBA1';
 GRANT db_admin TO 'lms_dba'@'localhost';
@@ -428,9 +435,8 @@ SET DEFAULT ROLE student FOR 'kojo.appiah'@'%';
 FLUSH PRIVILEGES;
 
 
-
-
 -- Verification queries
+-- Checks that the roles, permissions, and accounts were created correctly
 SELECT User AS RoleName FROM mysql.user WHERE is_role = 'Y';
 
 SHOW GRANTS FOR student;
@@ -439,6 +445,8 @@ SHOW GRANTS FOR faculty_intern;
 SHOW GRANTS FOR db_admin;
 
 SELECT User, Host, default_role FROM mysql.user WHERE is_role = 'N';
+
+
 -- Password expiry and account limits
 ALTER USER 'kwame.mensah'@'%'    PASSWORD EXPIRE INTERVAL 90 DAY;
 ALTER USER 'michael.addo'@'%'    PASSWORD EXPIRE INTERVAL 90 DAY;
@@ -451,11 +459,6 @@ ALTER USER 'kwame.mensah'@'%'
   WITH MAX_QUERIES_PER_HOUR 5000 MAX_USER_CONNECTIONS 5;
 ALTER USER 'michael.addo'@'%'
   WITH MAX_QUERIES_PER_HOUR 5000 MAX_USER_CONNECTIONS 5;
-
-
-
-
-
 
 
 -- Password strength rules
