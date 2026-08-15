@@ -411,24 +411,24 @@ GRANT EXECUTE ON PROCEDURE Group11_FinalProject.sp_secure_add_material
 -- Demonstration login accounts
 -- Creates sample accounts for testing each role: admin, lecturer, intern, and student
 CREATE USER IF NOT EXISTS 'lms_dba'@'localhost'
-  IDENTIFIED BY 'ChangeMe_DBA1';
+  IDENTIFIED BY 'ChangeMe_Dba#2026';
 GRANT db_admin TO 'lms_dba'@'localhost';
 SET DEFAULT ROLE db_admin FOR 'lms_dba'@'localhost';
 CREATE USER IF NOT EXISTS 'kwame.mensah'@'%'
-  IDENTIFIED BY 'ChangeMe_LEC1';
+  IDENTIFIED BY 'ChangeMe_Lect#2026';
 GRANT lecturer TO 'kwame.mensah'@'%';
 SET DEFAULT ROLE lecturer FOR 'kwame.mensah'@'%';
 CREATE USER IF NOT EXISTS 'michael.addo'@'%'
-  IDENTIFIED BY 'ChangeMe_FI1';
+  IDENTIFIED BY 'ChangeMe_Intern#2026';
 GRANT faculty_intern TO 'michael.addo'@'%';
 SET DEFAULT ROLE faculty_intern FOR 'michael.addo'@'%';
 CREATE USER IF NOT EXISTS 'ama.amoako'@'%'
-  IDENTIFIED BY 'ChangeMe_STU1';
+  IDENTIFIED BY 'ChangeMe_Stu1#2026';
 GRANT student TO 'ama.amoako'@'%';
 SET DEFAULT ROLE student FOR 'ama.amoako'@'%';
 
 CREATE USER IF NOT EXISTS 'kojo.appiah'@'%'
-  IDENTIFIED BY 'ChangeMe_STU1';
+  IDENTIFIED BY 'ChangeMe_Stu2#2026';
 GRANT student TO 'kojo.appiah'@'%';
 SET DEFAULT ROLE student FOR 'kojo.appiah'@'%';
 
