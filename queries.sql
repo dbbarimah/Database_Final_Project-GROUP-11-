@@ -519,7 +519,7 @@ END //
 DELIMITER ;
 
 
--- Additional Trigger: Prevents a faculty intern from being assigned to more than one course per semester
+-- Additional Trigger 4: Prevents a faculty intern from being assigned to more than one course per semester
 DROP TRIGGER IF EXISTS trg_OneFIPerSemester;
 DELIMITER //
 CREATE TRIGGER trg_OneFIPerSemester
@@ -544,7 +544,7 @@ END //
 DELIMITER ;
 
 
--- Trigger 5: Prevents assessment weights from exceeding 100% per course
+-- Additional Trigger 5: Prevents assessment weights from exceeding 100% per course
 DROP TRIGGER IF EXISTS trg_ValidateAssessmentWeight;
 DELIMITER //
 
@@ -565,7 +565,7 @@ END //
 DELIMITER ;
 
 
--- Trigger 6: Prevents duplicate Exam or MidSemester assessments
+-- Additional Trigger 6: Prevents duplicate Exam or MidSemester assessments
 DELIMITER //
 
 CREATE OR REPLACE TRIGGER trg_UniqueExamAndMidSemester
@@ -586,7 +586,7 @@ DELIMITER ;
 
 
 
--- Trigger 7: Prevents the total assessment weight for a course from exceeding 100%
+-- Additional Trigger 7: Prevents the total assessment weight for a course from exceeding 100%
 CREATE OR REPLACE TRIGGER trg_ValidateAssessmentWeightDELIMITER //
 
 CREATE OR REPLACE TRIGGER trg_ValidateAssessmentWeight
