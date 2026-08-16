@@ -2,10 +2,6 @@
 to create the tables, contraints, indexes, and sequences/idenity columns 
 (Phase 4)*/
 
--- Creating the Database
-CREATE DATABASE IF NOT EXISTS Group11_FinalProject;
-USE Group11_FinalProject;
-
 -- Creating the Department Table
 CREATE TABLE Department(
     DepartmentID INT PRIMARY KEY AUTO_INCREMENT,
