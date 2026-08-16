@@ -469,3 +469,25 @@ SET GLOBAL simple_password_check_digits            = 1;
 SET GLOBAL simple_password_check_letters_same_case = 1;
 SET GLOBAL simple_password_check_other_characters  = 1;
 
+-- Secure procedure for lecturers and faculty interns to create assessments for their assigned courses
+DROP PROCEDURE IF EXISTS sp_secure_create_assessment;
+DELIMITER $$
+CREATE DEFINER = 'lms_owner'@'localhost'
+PROCEDURE sp_secure_create_assessment(
+    IN p_course_id      INT,
+    IN p_semester       VARCHAR(10),
+    IN p_type           VARCHAR(20),
+    IN p_max_score      DECIMAL(5,2),
+    IN p_weight_percent DECIMAL(5,2),
+    IN p_due_date       DATE)
+  MODIFIES SQL DATA SQL SECURITY DEFINER
+BEGIN
+    IF NOT fn_may_teach(p_course_id, p_semester) THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'You are not assigned to this course for this semester.';
+    END IF;
+
+    INSERT INTO Assessment (CourseID, AssessmentType, MaxScore, WeightPercent, DueDate, DateUploaded)
+    VALUES (p_course_id, p_type, p_max_score, p_weight_percent, p_due_date, CURDATE());
+END$$
+DELIMITER ;
