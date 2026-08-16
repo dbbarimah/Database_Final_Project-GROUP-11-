@@ -281,7 +281,7 @@ GROUP BY c.CourseID, c.CourseCode, c.CourseTitle;
 -- 3 Stored Procedures
 -- Procedure 1: Enrolls a student into a course
 DROP PROCEDURE IF EXISTS sp_EnrollStudent;
-DELIMITER $$
+DELIMITER //
 CREATE PROCEDURE sp_EnrollStudent(
     IN p_StudentID INT,
     IN p_CourseID INT,
@@ -308,7 +308,7 @@ DELIMITER ;
 
 -- Procedure 2: Records a student's score for a specific assessment
 DROP PROCEDURE IF EXISTS sp_RecordGrade;
-DELIMITER $$
+DELIMITER //
 CREATE PROCEDURE sp_RecordGrade(
     IN p_EnrollmentID INT,
     IN p_AssessmentID INT,
@@ -335,7 +335,7 @@ DELIMITER ;
 
 -- Procedure 3: Takes in a StudentID and returns their full academic record
 DROP PROCEDURE IF EXISTS sp_GetStudentTranscript;
-DELIMITER $$
+DELIMITER //
 CREATE PROCEDURE sp_GetStudentTranscript(IN p_StudentID INT)
 BEGIN
     SELECT
@@ -361,7 +361,7 @@ DELIMITER ;
 -- 2 User-Defined Functions
 -- User-Defined Function 1: Calculates a Student's Weighted Average Score in a specific Course
 DROP FUNCTION IF EXISTS fn_CourseWeightedAverage;
-DELIMITER $$
+DELIMITER //
 CREATE FUNCTION fn_CourseWeightedAverage(p_StudentID INT, p_CourseID INT)
 RETURNS DECIMAL(5,2)
 DETERMINISTIC
@@ -384,7 +384,7 @@ DELIMITER ;
 
 -- User-Defined Function 2: Calculates the Attendance Rate for a Specific Course
 DROP FUNCTION IF EXISTS fn_AttendanceRate;
-DELIMITER $$
+DELIMITER //
 CREATE FUNCTION fn_AttendanceRate(p_StudentID INT, p_CourseID INT)
 RETURNS DECIMAL(5,2)
 DETERMINISTIC
@@ -414,7 +414,7 @@ DELIMITER ;
 -- 3 Triggers
 -- Trigger 1: Prevents a student from being enrolled in the same course twice in the same semester.
 DROP TRIGGER IF EXISTS trg_PreventDuplicateEnrollment;
-DELIMITER $$
+DELIMITER //
 CREATE TRIGGER trg_PreventDuplicateEnrollment
 BEFORE INSERT ON Enrollment
 FOR EACH ROW
@@ -435,7 +435,7 @@ DELIMITER ;
 
 -- Trigger 2: Prevents a grade from being recorded if it exceeds the maximum score for that assessment.
 DROP TRIGGER IF EXISTS trg_ValidateGradeScore;
-DELIMITER $$
+DELIMITER //
 CREATE TRIGGER trg_ValidateGradeScore
 BEFORE INSERT ON Grade
 FOR EACH ROW
@@ -457,7 +457,7 @@ DELIMITER ;
 
 -- Trigger 3: Updates a student's enrollment status to Completed once their exam grade has been recorded
 DROP TRIGGER IF EXISTS trg_CompleteEnrollmentOnExam;
-DELIMITER $$
+DELIMITER //
 CREATE TRIGGER trg_CompleteEnrollmentOnExam
 AFTER INSERT ON Grade
 FOR EACH ROW
@@ -480,7 +480,7 @@ DELIMITER ;
 
 -- Additional Trigger: Prevents a faculty intern from being assigned to more than one course per semester
 DROP TRIGGER IF EXISTS trg_OneFIPerSemester;
-DELIMITER $$
+DELIMITER //
 CREATE TRIGGER trg_OneFIPerSemester
 BEFORE INSERT ON Teaching_Assignment
 FOR EACH ROW
@@ -505,7 +505,7 @@ DELIMITER ;
 
 -- Trigger 5: Prevents assessment weights from exceeding 100% per course
 DROP TRIGGER IF EXISTS trg_ValidateAssessmentWeight;
-DELIMITER $$
+DELIMITER //
 
 CREATE TRIGGER trg_ValidateAssessmentWeight
 BEFORE INSERT ON Assessment
@@ -525,23 +525,44 @@ DELIMITER ;
 
 
 -- Trigger 6: Prevents duplicate Exam or MidSemester assessments
-DROP TRIGGER IF EXISTS trg_UniqueExamAndMidSemester;
-DELIMITER $$
+DELIMITER //
 
-CREATE TRIGGER trg_UniqueExamAndMidSemester
+CREATE OR REPLACE TRIGGER trg_UniqueExamAndMidSemester
 BEFORE INSERT ON Assessment
 FOR EACH ROW
 BEGIN
-    IF NEW.AssessmentType IN ('Exam', 'MidSemester')
-       AND EXISTS (
-           SELECT 1
-           FROM Assessment
-           WHERE CourseID = NEW.CourseID
-             AND AssessmentType = NEW.AssessmentType
-       ) THEN
+    IF NEW.AssessmentType IN ('Exam', 'MidSemester') AND EXISTS (
+        SELECT 1 FROM Assessment
+        WHERE CourseID = NEW.CourseID
+          AND AssessmentType = NEW.AssessmentType
+    ) THEN
         SIGNAL SQLSTATE '45000'
             SET MESSAGE_TEXT = 'A course can only have one Exam and one MidSemester assessment.';
     END IF;
-END$$
+END//
+
+DELIMITER ;
+
+
+
+-- Trigger 7: Prevents the total assessment weight for a course from exceeding 100%
+CREATE OR REPLACE TRIGGER trg_ValidateAssessmentWeightDELIMITER //
+
+CREATE OR REPLACE TRIGGER trg_ValidateAssessmentWeight
+BEFORE INSERT ON Assessment
+FOR EACH ROW
+BEGIN
+    DECLARE v_TotalWeight DECIMAL(5,2);
+
+    SELECT COALESCE(SUM(WeightPercent), 0)
+    INTO v_TotalWeight
+    FROM Assessment
+    WHERE CourseID = NEW.CourseID;
+
+    IF v_TotalWeight + NEW.WeightPercent > 100 THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Total assessment weight for this course cannot exceed 100%.';
+    END IF;
+END//
 
 DELIMITER ;
