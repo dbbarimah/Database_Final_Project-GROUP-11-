@@ -24,51 +24,41 @@
     </button>
     <div class="collapse navbar-collapse" id="navMain">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('dashboard.index') }}">Dashboard</a></li>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            Sections
-          </a>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="{{ url_for('course.list_courses') }}">Courses</a></li>
-            <li><a class="dropdown-item" href="{{ url_for('department.list_departments') }}">Departments</a></li>
+    <li class="nav-item"><a class="nav-link" href="{{ url_for('dashboard.index') }}">Dashboard</a></li>
+    <li class="nav-item"><a class="nav-link" href="{{ url_for('course.list_courses') }}">Courses</a></li>
+    <li class="nav-item"><a class="nav-link" href="{{ url_for('department.list_departments') }}">Departments</a></li>
 
-            {% if current_role == 'db_admin' %}
-              <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="{{ url_for('staff.list_staff') }}">Staff</a></li>
-              <li><a class="dropdown-item" href="{{ url_for('student.list_students') }}">Students</a></li>
-              <li><a class="dropdown-item" href="{{ url_for('teaching_assignment.list_assignments') }}">Teaching Assignments</a></li>
-              <li><a class="dropdown-item" href="{{ url_for('enrollment.list_enrollments') }}">Enrollments</a></li>
-              <li><a class="dropdown-item" href="{{ url_for('attendance.list_attendance') }}">Attendance</a></li>
-              <li><a class="dropdown-item" href="{{ url_for('assessment.list_assessments') }}">Assessments</a></li>
-              <li><a class="dropdown-item" href="{{ url_for('grade.list_grades') }}">Grades</a></li>
-              <li><a class="dropdown-item" href="{{ url_for('course_material.list_materials') }}">Materials</a></li>
-              <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="{{ url_for('reports.index') }}">Reports</a></li>
-            {% elif current_role in ('lecturer', 'faculty_intern') %}
-              <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="{{ url_for('teaching_assignment.my_teaching') }}">My Teaching</a></li>
-              <li><a class="dropdown-item" href="{{ url_for('enrollment.class_list') }}">Class List</a></li>
-              <li><a class="dropdown-item" href="{{ url_for('attendance.class_attendance') }}">Attendance</a></li>
-              <li><a class="dropdown-item" href="{{ url_for('assessment.class_assessments') }}">Assessments</a></li>
-              <li><a class="dropdown-item" href="{{ url_for('grade.class_grades') }}">Grades</a></li>
-              <li><a class="dropdown-item" href="{{ url_for('course_material.class_materials') }}">Materials</a></li>
-            {% elif current_role == 'student' %}
-              <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="{{ url_for('student.my_profile') }}">My Profile</a></li>
-              <li><a class="dropdown-item" href="{{ url_for('enrollment.my_enrollments') }}">My Enrollments</a></li>
-              <li><a class="dropdown-item" href="{{ url_for('attendance.my_attendance') }}">My Attendance</a></li>
-              <li><a class="dropdown-item" href="{{ url_for('assessment.my_assessments') }}">My Assessments</a></li>
-              <li><a class="dropdown-item" href="{{ url_for('grade.my_grades') }}">My Grades</a></li>
-              <li><a class="dropdown-item" href="{{ url_for('course_material.my_materials') }}">My Materials</a></li>
-            {% endif %}
-          </ul>
-        </li>
-      </ul>
-      <span class="navbar-text me-3 app-identity">
-        {{ current_display_name }} <span class="role-chip">{{ current_role }}</span>
-      </span>
-      <a class="btn btn-outline-light btn-sm app-logout" href="{{ url_for('auth.logout') }}">Log out</a>
+    {% if current_role == 'db_admin' %}
+      <li class="nav-item"><a class="nav-link" href="{{ url_for('staff.list_staff') }}">Staff</a></li>
+      <li class="nav-item"><a class="nav-link" href="{{ url_for('student.list_students') }}">Students</a></li>
+      <li class="nav-item"><a class="nav-link" href="{{ url_for('teaching_assignment.list_assignments') }}">Teaching Assignments</a></li>
+      <li class="nav-item"><a class="nav-link" href="{{ url_for('enrollment.list_enrollments') }}">Enrollments</a></li>
+      <li class="nav-item"><a class="nav-link" href="{{ url_for('attendance.list_attendance') }}">Attendance</a></li>
+      <li class="nav-item"><a class="nav-link" href="{{ url_for('assessment.list_assessments') }}">Assessments</a></li>
+      <li class="nav-item"><a class="nav-link" href="{{ url_for('grade.list_grades') }}">Grades</a></li>
+      <li class="nav-item"><a class="nav-link" href="{{ url_for('course_material.list_materials') }}">Materials</a></li>
+      <li class="nav-item"><a class="nav-link" href="{{ url_for('reports.index') }}">Reports</a></li>
+    {% elif current_role in ('lecturer', 'faculty_intern') %}
+      <li class="nav-item"><a class="nav-link" href="{{ url_for('teaching_assignment.my_teaching') }}">My Teaching</a></li>
+      <li class="nav-item"><a class="nav-link" href="{{ url_for('enrollment.class_list') }}">Class List</a></li>
+      <li class="nav-item"><a class="nav-link" href="{{ url_for('attendance.class_attendance') }}">Attendance</a></li>
+      <li class="nav-item"><a class="nav-link" href="{{ url_for('assessment.class_assessments') }}">Assessments</a></li>
+      <li class="nav-item"><a class="nav-link" href="{{ url_for('grade.class_grades') }}">Grades</a></li>
+      <li class="nav-item"><a class="nav-link" href="{{ url_for('course_material.class_materials') }}">Materials</a></li>
+    {% elif current_role == 'student' %}
+      <li class="nav-item"><a class="nav-link" href="{{ url_for('student.my_profile') }}">My Profile</a></li>
+      <li class="nav-item"><a class="nav-link" href="{{ url_for('enrollment.my_enrollments') }}">My Enrollments</a></li>
+      <li class="nav-item"><a class="nav-link" href="{{ url_for('attendance.my_attendance') }}">Attendance</a></li>
+      <li class="nav-item"><a class="nav-link" href="{{ url_for('assessment.my_assessments') }}">Assessments</a></li>
+      <li class="nav-item"><a class="nav-link" href="{{ url_for('grade.my_grades') }}">Grades</a></li>
+      <li class="nav-item"><a class="nav-link" href="{{ url_for('student.my_transcript') }}">My Transcript</a></li>
+      <li class="nav-item"><a class="nav-link" href="{{ url_for('course_material.my_materials') }}">Materials</a></li>
+    {% endif %}
+  </ul>
+  <span class="navbar-text me-3 app-identity">
+    {{ current_display_name }} <span class="role-chip">{{ current_role }}</span>
+  </span>
+  <a class="btn btn-outline-light btn-sm app-logout" href="{{ url_for('auth.logout') }}">Log out</a>
     </div>
   </div>
 </nav>

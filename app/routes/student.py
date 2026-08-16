@@ -4,6 +4,7 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 from app.auth import require_login_before_request, role_required
 from app.db import get_db
 from app.utils import db_error_message, is_htmx
+from app.utils import db_error_message, is_htmx, letter_grade
 
 bp = Blueprint("student", __name__, url_prefix="/students")
 bp.before_request(require_login_before_request)
@@ -109,6 +110,7 @@ def delete_student(student_id):
 @role_required("db_admin")
 def transcript(student_id):
     db = get_db()
+    from app.utils import letter_grade
     with db.cursor() as cur:
         cur.execute("SELECT * FROM Student WHERE StudentID=%s", (student_id,))
         student = cur.fetchone()
@@ -117,7 +119,22 @@ def transcript(student_id):
             return redirect(url_for("student.list_students"))
         cur.callproc("sp_GetStudentTranscript", (student_id,))
         rows = cur.fetchall()
-    return render_template("student/transcript.html", student=student, rows=rows)
+    return render_template("student/transcript.html", student=student, rows=rows, letter_grade=letter_grade, is_own=False)
+
+
+@bp.route("/my-transcript")
+@role_required("student")
+def my_transcript():
+    db = get_db()
+    with db.cursor() as cur:
+        cur.execute("SELECT * FROM v_my_profile")
+        student = cur.fetchone()
+        if student is None:
+            flash("Profile not found.", "warning")
+            return redirect(url_for("dashboard.index"))
+        cur.execute("SELECT * FROM v_my_grades ORDER BY Semester, CourseCode")
+        rows = cur.fetchall()
+    return render_template("student/transcript.html", student=student, rows=rows, letter_grade=letter_grade, is_own=True)
 
 
 @bp.route("/profile")

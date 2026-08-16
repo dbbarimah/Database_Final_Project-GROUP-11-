@@ -8,9 +8,9 @@
     <label class="form-label" for="course_id">Course</label>
     <select class="form-select" id="course_id" name="course_id" required>
       <option value="" disabled {% if not assessment %}selected{% endif %}>Choose...</option>
-      {% for c in courses %}
-      <option value="{{ c.CourseID }}" {% if assessment and assessment.CourseID == c.CourseID %}selected{% endif %}>
-        {{ c.CourseCode }}
+      {% for t in teaching %}
+      <option value="{{ t.CourseID }}" {% if assessment and assessment.CourseID == t.CourseID %}selected{% endif %}>
+        {{ t.CourseCode }} — {{ t.CourseTitle }}
       </option>
       {% endfor %}
     </select>
@@ -41,6 +41,6 @@
            value="{{ assessment.DueDate if assessment else '' }}">
   </div>
   <button class="btn btn-primary" type="submit">Save</button>
-  <a class="btn btn-outline-secondary" href="{{ url_for('assessment.list_assessments') }}">Cancel</a>
+  <a class="btn btn-outline-secondary" href="{{ url_for('assessment.class_assessments') }}">Cancel</a>
 </form>
 {% endblock %}

@@ -27,3 +27,24 @@ def db_error_message(exc):
 
 def is_htmx():
     return request.headers.get("HX-Request") == "true"
+
+def letter_grade(percent):
+    if percent is None:
+        return "N/A"
+    if percent >= 90:
+        return "A+"
+    if percent >= 85:
+        return "A"
+    if percent >= 80:
+        return "B+"
+    if percent >= 75:
+        return "B"
+    if percent >= 70:
+        return "C+"
+    if percent >= 65:
+        return "C"
+    if percent >= 60:
+        return "D+"
+    if percent >= 55:
+        return "D"
+    return "F"

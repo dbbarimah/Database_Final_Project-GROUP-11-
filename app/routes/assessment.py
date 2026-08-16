@@ -26,7 +26,7 @@ def list_assessments():
 
 
 @bp.route("/new", methods=["GET", "POST"])
-@role_required("db_admin")
+@role_required("lecturer", "faculty_intern")
 def create_assessment():
     db = get_db()
     if request.method == "POST":
@@ -44,20 +44,20 @@ def create_assessment():
                     ),
                 )
             flash("Assessment created.", "success")
-            return redirect(url_for("assessment.list_assessments"))
+            return redirect(url_for("assessment.class_assessments"))
         except pymysql.MySQLError as exc:
             flash(db_error_message(exc), "danger")
 
     with db.cursor() as cur:
-        cur.execute("SELECT CourseID, CourseCode FROM Course ORDER BY CourseCode")
-        courses = cur.fetchall()
+        cur.execute("SELECT * FROM v_my_teaching ORDER BY Semester DESC, CourseCode")
+        teaching = cur.fetchall()
     return render_template(
-        "assessment/form.html", assessment=None, courses=courses, type_choices=ASSESSMENT_TYPE_CHOICES
+        "assessment/form.html", assessment=None, teaching=teaching, type_choices=ASSESSMENT_TYPE_CHOICES
     )
 
 
 @bp.route("/<int:assessment_id>/edit", methods=["GET", "POST"])
-@role_required("db_admin")
+@role_required("lecturer", "faculty_intern")
 def edit_assessment(assessment_id):
     db = get_db()
     if request.method == "POST":
@@ -76,20 +76,20 @@ def edit_assessment(assessment_id):
                     ),
                 )
             flash("Assessment updated.", "success")
-            return redirect(url_for("assessment.list_assessments"))
+            return redirect(url_for("assessment.class_assessments"))
         except pymysql.MySQLError as exc:
             flash(db_error_message(exc), "danger")
 
     with db.cursor() as cur:
         cur.execute("SELECT * FROM Assessment WHERE AssessmentID=%s", (assessment_id,))
         assessment = cur.fetchone()
-        cur.execute("SELECT CourseID, CourseCode FROM Course ORDER BY CourseCode")
-        courses = cur.fetchall()
+        cur.execute("SELECT * FROM v_my_teaching ORDER BY Semester DESC, CourseCode")
+        teaching = cur.fetchall()
     if assessment is None:
         flash("Assessment not found.", "warning")
-        return redirect(url_for("assessment.list_assessments"))
+        return redirect(url_for("assessment.class_assessments"))
     return render_template(
-        "assessment/form.html", assessment=assessment, courses=courses, type_choices=ASSESSMENT_TYPE_CHOICES
+        "assessment/form.html", assessment=assessment, teaching=teaching, type_choices=ASSESSMENT_TYPE_CHOICES
     )
 
 

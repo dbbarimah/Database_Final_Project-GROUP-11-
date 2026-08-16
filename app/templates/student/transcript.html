@@ -5,7 +5,7 @@
 <p class="text-muted">{{ student.Fname }} {{ student.Lname }} &middot; {{ student.StudentEmail }}</p>
 <div class="table-responsive">
   <table class="table table-striped">
-    <thead><tr><th>Semester</th><th>Course</th><th>Assessment</th><th>Score</th><th>Max</th><th>Recorded</th></tr></thead>
+    <thead><tr><th>Semester</th><th>Course</th><th>Assessment</th><th>Score</th><th>Max</th><th>%</th><th>Grade</th><th>Recorded</th></tr></thead>
     <tbody>
       {% for r in rows %}
       <tr>
@@ -14,13 +14,19 @@
         <td>{{ r.AssessmentType }}</td>
         <td>{{ r.ScoreObtained }}</td>
         <td>{{ r.MaxScore }}</td>
+        <td>{{ r.PercentScore }}%</td>
+        <td>{{ letter_grade(r.PercentScore) }}</td>
         <td>{{ r.DateRecorded }}</td>
       </tr>
       {% else %}
-      <tr><td colspan="6" class="text-muted">No grades recorded yet.</td></tr>
+      <tr><td colspan="8" class="text-muted">No grades recorded yet.</td></tr>
       {% endfor %}
     </tbody>
   </table>
 </div>
-<a class="btn btn-outline-secondary" href="{{ url_for('student.list_students') }}">Back to students</a>
+{% if is_own %}
+<a class="btn btn-outline-secondary" href="{{ url_for('dashboard.index') }}">Back to dashboard</a>
+{% else %}
+  <a class="btn btn-outline-secondary" href="{{ url_for('student.list_students') }}">Back to students</a>
+{% endif %}
 {% endblock %}

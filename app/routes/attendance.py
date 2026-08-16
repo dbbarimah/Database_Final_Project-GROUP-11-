@@ -27,41 +27,6 @@ def list_attendance():
     return render_template("attendance/list.html", rows=rows)
 
 
-@bp.route("/new", methods=["GET", "POST"])
-@role_required("db_admin")
-def create_attendance():
-    db = get_db()
-    if request.method == "POST":
-        try:
-            with db.cursor() as cur:
-                cur.execute(
-                    """INSERT INTO Attendance (EnrollmentID, SessionDate, AttendanceStatus)
-                       VALUES (%s, %s, %s)""",
-                    (
-                        request.form["enrollment_id"],
-                        request.form["session_date"],
-                        request.form["status"],
-                    ),
-                )
-            flash("Attendance recorded.", "success")
-            return redirect(url_for("attendance.list_attendance"))
-        except pymysql.MySQLError as exc:
-            flash(db_error_message(exc), "danger")
-
-    with db.cursor() as cur:
-        cur.execute(
-            """SELECT e.EnrollmentID, s.Fname, s.Lname, c.CourseCode, e.Semester
-                 FROM Enrollment e
-                 JOIN Student s ON s.StudentID = e.StudentID
-                 JOIN Course c ON c.CourseID = e.CourseID
-                ORDER BY c.CourseCode, s.Lname"""
-        )
-        enrollments = cur.fetchall()
-    return render_template(
-        "attendance/form.html", enrollments=enrollments, status_choices=ATTENDANCE_STATUS_CHOICES
-    )
-
-
 @bp.route("/<int:attendance_id>/delete", methods=["POST"])
 @role_required("db_admin")
 def delete_attendance(attendance_id):

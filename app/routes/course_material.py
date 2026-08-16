@@ -148,9 +148,23 @@ def download(stored_name):
             cur.execute("SELECT NULL WHERE FALSE")
         row = cur.fetchone()
 
+    if role == "db_admin":
+        fallback = url_for("course_material.list_materials")
+    elif role == "student":
+        fallback = url_for("course_material.my_materials")
+    elif role in ("lecturer", "faculty_intern"):
+        fallback = url_for("course_material.class_materials")
+    else:
+        fallback = url_for("dashboard.index")
+
     if row is None:
         flash("That file isn't available to you.", "danger")
-        return redirect(url_for("dashboard.index"))
+        return redirect(fallback)
+
+    file_path = current_app.config["UPLOAD_FOLDER"] / stored_name
+    if not file_path.exists():
+        flash("This file has not been uploaded yet and is not available for download.", "warning")
+        return redirect(fallback)
 
     return send_from_directory(
         current_app.config["UPLOAD_FOLDER"], stored_name, as_attachment=True

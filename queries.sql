@@ -503,9 +503,45 @@ END$$
 DELIMITER ;
 
 
+-- Trigger 5: Prevents assessment weights from exceeding 100% per course
+DROP TRIGGER IF EXISTS trg_ValidateAssessmentWeight;
+DELIMITER $$
+
+CREATE TRIGGER trg_ValidateAssessmentWeight
+BEFORE INSERT ON Assessment
+FOR EACH ROW
+BEGIN
+    IF (
+        SELECT COALESCE(SUM(WeightPercent), 0)
+        FROM Assessment
+        WHERE CourseID = NEW.CourseID
+    ) + NEW.WeightPercent > 100 THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Total assessment weight cannot exceed 100%.';
+    END IF;
+END$$
+
+DELIMITER ;
 
 
+-- Trigger 6: Prevents duplicate Exam or MidSemester assessments
+DROP TRIGGER IF EXISTS trg_UniqueExamAndMidSemester;
+DELIMITER $$
 
+CREATE TRIGGER trg_UniqueExamAndMidSemester
+BEFORE INSERT ON Assessment
+FOR EACH ROW
+BEGIN
+    IF NEW.AssessmentType IN ('Exam', 'MidSemester')
+       AND EXISTS (
+           SELECT 1
+           FROM Assessment
+           WHERE CourseID = NEW.CourseID
+             AND AssessmentType = NEW.AssessmentType
+       ) THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'A course can only have one Exam and one MidSemester assessment.';
+    END IF;
+END$$
 
-
-
+DELIMITER ;

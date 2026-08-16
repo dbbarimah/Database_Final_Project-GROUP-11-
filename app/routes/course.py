@@ -12,14 +12,24 @@ bp.before_request(require_login_before_request)
 @bp.route("/")
 def list_courses():
     db = get_db()
+    from app.auth import current_role
+    role = current_role()
     with db.cursor() as cur:
-        cur.execute(
-            """SELECT c.CourseID, c.CourseCode, c.CourseTitle, c.CreditHours, d.DeptCode
-                 FROM Course c JOIN Department d ON d.DepartmentID = c.DepartmentID
-                ORDER BY c.CourseCode"""
-        )
+        if role == "student":
+            cur.execute(
+                """SELECT e.CourseID, e.CourseCode, e.CourseTitle, e.CreditHours, e.Semester,
+                          e.EnrollmentStatus
+                     FROM v_my_enrollments e
+                    ORDER BY e.Semester DESC, e.CourseCode"""
+            )
+        else:
+            cur.execute(
+                """SELECT c.CourseID, c.CourseCode, c.CourseTitle, c.CreditHours, d.DeptCode
+                     FROM Course c JOIN Department d ON d.DepartmentID = c.DepartmentID
+                    ORDER BY c.CourseCode"""
+            )
         courses = cur.fetchall()
-    return render_template("course/list.html", courses=courses)
+    return render_template("course/list.html", courses=courses, role=role)
 
 
 @bp.route("/new", methods=["GET", "POST"])

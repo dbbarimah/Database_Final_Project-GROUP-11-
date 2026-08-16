@@ -3,7 +3,7 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 
 from app.auth import require_login_before_request, role_required
 from app.db import get_db
-from app.utils import db_error_message, is_htmx
+from app.utils import db_error_message, is_htmx, letter_grade
 
 bp = Blueprint("grade", __name__, url_prefix="/grades")
 bp.before_request(require_login_before_request)
@@ -27,44 +27,6 @@ def list_grades():
         )
         grades = cur.fetchall()
     return render_template("grade/list.html", grades=grades)
-
-
-@bp.route("/new", methods=["GET", "POST"])
-@role_required("db_admin")
-def create_grade():
-    db = get_db()
-    if request.method == "POST":
-        try:
-            with db.cursor() as cur:
-                cur.callproc(
-                    "sp_RecordGrade",
-                    (
-                        request.form["enrollment_id"],
-                        request.form["assessment_id"],
-                        request.form["score"],
-                    ),
-                )
-            flash("Grade recorded.", "success")
-            return redirect(url_for("grade.list_grades"))
-        except pymysql.MySQLError as exc:
-            flash(db_error_message(exc), "danger")
-
-    with db.cursor() as cur:
-        cur.execute(
-            """SELECT e.EnrollmentID, s.Fname, s.Lname, c.CourseCode, e.Semester
-                 FROM Enrollment e
-                 JOIN Student s ON s.StudentID = e.StudentID
-                 JOIN Course c ON c.CourseID = e.CourseID
-                ORDER BY c.CourseCode, s.Lname"""
-        )
-        enrollments = cur.fetchall()
-        cur.execute(
-            """SELECT a.AssessmentID, a.AssessmentType, a.MaxScore, c.CourseCode
-                 FROM Assessment a JOIN Course c ON c.CourseID = a.CourseID
-                ORDER BY c.CourseCode, a.AssessmentType"""
-        )
-        assessments = cur.fetchall()
-    return render_template("grade/form.html", enrollments=enrollments, assessments=assessments)
 
 
 @bp.route("/<int:grade_id>/delete", methods=["POST"])
@@ -119,8 +81,6 @@ def record_grade():
                 (course_id, semester),
             )
             roster = cur.fetchall()
-            # Pre-fill the gradebook with whatever's already recorded for
-            # this assessment, so it reads like a spreadsheet, not a blank form.
             cur.execute(
                 "SELECT EnrollmentID, ScoreObtained FROM v_class_grades WHERE AssessmentID=%s",
                 (assessment_id,),
@@ -173,4 +133,4 @@ def my_grades():
     with db.cursor() as cur:
         cur.execute("SELECT * FROM v_my_grades ORDER BY DateRecorded DESC")
         rows = cur.fetchall()
-    return render_template("grade/mine.html", rows=rows)
+    return render_template("grade/mine.html", rows=rows, letter_grade=letter_grade)
