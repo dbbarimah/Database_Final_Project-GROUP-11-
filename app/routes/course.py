@@ -32,6 +32,44 @@ def list_courses():
     return render_template("course/list.html", courses=courses, role=role)
 
 
+@bp.route("/<int:course_id>")
+@role_required("student")
+def course_detail(course_id):
+    db = get_db()
+    from app.utils import letter_grade
+    with db.cursor() as cur:
+        cur.execute(
+            "SELECT * FROM v_my_enrollments WHERE CourseID=%s", (course_id,)
+        )
+        enrollment = cur.fetchone()
+        if enrollment is None:
+            flash("You are not enrolled in this course.", "warning")
+            return redirect(url_for("course.list_courses"))
+        cur.execute(
+            "SELECT * FROM v_my_assessments WHERE CourseCode=%s ORDER BY DueDate",
+            (enrollment["CourseCode"],)
+        )
+        assessments = cur.fetchall()
+        cur.execute(
+            "SELECT * FROM v_my_grades WHERE CourseCode=%s ORDER BY DateRecorded",
+            (enrollment["CourseCode"],)
+        )
+        grades = cur.fetchall()
+        cur.execute(
+            "SELECT * FROM v_my_course_materials WHERE CourseCode=%s ORDER BY DateUploaded DESC",
+            (enrollment["CourseCode"],)
+        )
+        materials = cur.fetchall()
+    return render_template(
+        "course/detail.html",
+        enrollment=enrollment,
+        assessments=assessments,
+        grades=grades,
+        materials=materials,
+        letter_grade=letter_grade
+    )
+
+
 @bp.route("/new", methods=["GET", "POST"])
 @role_required("db_admin")
 def create_course():

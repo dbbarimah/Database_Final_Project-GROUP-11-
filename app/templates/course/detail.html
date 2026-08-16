@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}{{ enrollment.CourseCode }}{% endblock %}
+{% block content %}
+<div class="mb-4">
+  <span class="eyebrow">{{ enrollment.Semester }}</span>
+  <h1 class="h3 mb-0">{{ enrollment.CourseCode }} — {{ enrollment.CourseTitle }}</h1>
+  <p class="text-muted">{{ enrollment.CreditHours }} credit hours &middot;
+    <span class="status-pill status-{{ enrollment.EnrollmentStatus | lower }}">{{ enrollment.EnrollmentStatus }}</span>
+  </p>
+</div>
+
+<h2 class="h5 mb-3">Assessments</h2>
+<div class="table-responsive mb-4">
+  <table class="table table-striped">
+    <thead><tr><th>Type</th><th>Max Score</th><th>Weight %</th><th>Due Date</th></tr></thead>
+    <tbody>
+      {% for a in assessments %}
+      <tr>
+        <td>{{ a.AssessmentType }}</td>
+        <td>{{ a.MaxScore }}</td>
+        <td>{{ a.WeightPercent }}</td>
+        <td>{{ a.DueDate or '—' }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="4" class="text-muted">No assessments yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<h2 class="h5 mb-3">My Grades</h2>
+<div class="table-responsive mb-4">
+  <table class="table table-striped">
+    <thead><tr><th>Assessment</th><th>Score</th><th>Max</th><th>%</th><th>Grade</th></tr></thead>
+    <tbody>
+      {% for g in grades %}
+      <tr>
+        <td>{{ g.AssessmentType }}</td>
+        <td>{{ g.ScoreObtained }}</td>
+        <td>{{ g.MaxScore }}</td>
+        <td>{{ g.PercentScore }}%</td>
+        <td>{{ letter_grade(g.PercentScore) }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="text-muted">No grades recorded yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<h2 class="h5 mb-3">Course Materials</h2>
+<div class="table-responsive mb-4">
+  <table class="table table-striped">
+    <thead><tr><th>Title</th><th>Uploaded</th><th></th></tr></thead>
+    <tbody>
+      {% for m in materials %}
+      <tr>
+        <td>{{ m.MaterialTitle }}</td>
+        <td>{{ m.DateUploaded }}</td>
+        <td><a href="{{ url_for('course_material.download', stored_name=m.FilePath) }}">Download</a></td>
+      </tr>
+      {% else %}
+      <tr><td colspan="3" class="text-muted">No materials uploaded yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<a class="btn btn-outline-secondary" href="{{ url_for('course.list_courses') }}">Back to courses</a>
+{% endblock %}

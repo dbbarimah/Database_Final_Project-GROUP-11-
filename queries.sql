@@ -302,7 +302,7 @@ BEGIN
         INSERT INTO Enrollment (StudentID, CourseID, Semester, EnrollmentDate, EnrollmentStatus)
         VALUES (p_StudentID, p_CourseID, p_Semester, p_EnrollmentDate, 'Active');
     END IF;
-END$$
+END //
 DELIMITER ;
 
 
@@ -329,7 +329,7 @@ BEGIN
         INSERT INTO Grade (EnrollmentID, AssessmentID, ScoreObtained, DateRecorded)
         VALUES (p_EnrollmentID, p_AssessmentID, p_Score, CURDATE());
     END IF;
-END$$
+END //
 DELIMITER ;
 
 
@@ -352,8 +352,12 @@ BEGIN
     JOIN Assessment a ON a.AssessmentID = g.AssessmentID
     WHERE e.StudentID = p_StudentID
     ORDER BY e.Semester, c.CourseCode, a.AssessmentType;
-END$$
+END //
 DELIMITER ;
+
+
+
+
 
 
 
@@ -378,7 +382,7 @@ BEGIN
       AND e.CourseID = p_CourseID;
 
     RETURN IFNULL(v_Average, 0.00);
-END$$
+END //
 DELIMITER ;
 
 
@@ -405,7 +409,7 @@ BEGIN
     ELSE
         RETURN ROUND(100 * v_Present / v_Total, 2);
     END IF;
-END$$
+END //
 DELIMITER ;
 
 
@@ -429,7 +433,7 @@ BEGIN
         SIGNAL SQLSTATE '45000'
             SET MESSAGE_TEXT = 'Duplicate enrollment: student already enrolled in this course this semester.';
     END IF;
-END$$
+END //
 DELIMITER ;
 
 
@@ -451,7 +455,7 @@ BEGIN
         SIGNAL SQLSTATE '45000'
             SET MESSAGE_TEXT = 'Score obtained exceeds the max score for this assessment.';
     END IF;
-END$$
+END //
 DELIMITER ;
 
 
@@ -474,7 +478,7 @@ BEGIN
         SET EnrollmentStatus = 'Completed'
         WHERE EnrollmentID = NEW.EnrollmentID;
     END IF;
-END$$
+END //
 DELIMITER ;
 
 
@@ -499,7 +503,7 @@ BEGIN
         SIGNAL SQLSTATE '45000'
             SET MESSAGE_TEXT = 'A faculty intern can only be assigned to one course per semester.';
     END IF;
-END$$
+END //
 DELIMITER ;
 
 
@@ -519,7 +523,7 @@ BEGIN
         SIGNAL SQLSTATE '45000'
             SET MESSAGE_TEXT = 'Total assessment weight cannot exceed 100%.';
     END IF;
-END$$
+END //
 
 DELIMITER ;
 

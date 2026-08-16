@@ -32,11 +32,11 @@ def create_assessment():
     if request.method == "POST":
         try:
             with db.cursor() as cur:
-                cur.execute(
-                    """INSERT INTO Assessment (CourseID, AssessmentType, MaxScore, WeightPercent, DueDate, DateUploaded)
-                       VALUES (%s, %s, %s, %s, %s, CURDATE())""",
+                cur.callproc(
+                    "sp_secure_create_assessment",
                     (
                         request.form["course_id"],
+                        request.form["semester"],
                         request.form["assessment_type"],
                         request.form["max_score"],
                         request.form["weight_percent"],

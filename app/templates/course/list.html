@@ -10,6 +10,22 @@
 <input type="search" class="form-control mb-2" placeholder="Search courses&hellip;" data-filter-target="#courses-table">
 <div class="table-responsive">
   <table class="table table-striped" id="courses-table">
+    {% if current_role == 'student' %}
+    <thead><tr><th>Code</th><th>Title</th><th>Credit Hours</th><th>Semester</th><th>Status</th></tr></thead>
+    <tbody>
+      {% for c in courses %}
+      <tr>
+        <td>{{ c.CourseCode }}</td>
+        <td><a href="{{ url_for('course.course_detail', course_id=c.CourseID) }}">{{ c.CourseTitle }}</a></td>
+        <td>{{ c.CreditHours }}</td>
+        <td>{{ c.Semester }}</td>
+        <td><span class="status-pill status-{{ c.EnrollmentStatus | lower }}">{{ c.EnrollmentStatus }}</span></td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="text-muted">No enrolled courses found.</td></tr>
+      {% endfor %}
+    </tbody>
+    {% else %}
     <thead><tr><th>Code</th><th>Title</th><th>Credit Hours</th><th>Department</th>{% if current_role == 'db_admin' %}<th></th>{% endif %}</tr></thead>
     <tbody>
       {% for c in courses %}
@@ -33,6 +49,7 @@
       <tr><td colspan="5" class="text-muted">No courses found.</td></tr>
       {% endfor %}
     </tbody>
+    {% endif %}
   </table>
   <p class="text-muted d-none" data-filter-empty>No courses match that search.</p>
 </div>
