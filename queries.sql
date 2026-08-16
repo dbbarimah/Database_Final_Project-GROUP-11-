@@ -333,31 +333,33 @@ END //
 DELIMITER ;
 
 
--- Procedure 3: Takes in a StudentID and returns their full academic record
-DROP PROCEDURE IF EXISTS sp_GetStudentTranscript;
-DELIMITER //
+-- Procedure 3: Returns a student's cumulative weighted score per course
+DROP PROCEDURE IF EXISTS sp_GetStudentTranscript//
 CREATE PROCEDURE sp_GetStudentTranscript(IN p_StudentID INT)
 BEGIN
     SELECT
+        e.EnrollmentID,
         c.CourseCode,
         c.CourseTitle,
+        c.CreditHours,
         e.Semester,
-        a.AssessmentType,
-        g.ScoreObtained,
-        a.MaxScore,
-        g.DateRecorded
+        e.EnrollmentStatus,
+        ROUND(SUM((g.ScoreObtained / a.MaxScore) * a.WeightPercent), 2) AS CumulativeScore,
+        ROUND(SUM(a.WeightPercent), 2) AS WeightGraded,
+        (SELECT ROUND(SUM(WeightPercent), 2) FROM Assessment WHERE CourseID = e.CourseID) AS TotalWeight,
+        fn_GPA(p_StudentID) AS GPA
     FROM Enrollment e
     JOIN Course c ON c.CourseID = e.CourseID
     JOIN Grade g ON g.EnrollmentID = e.EnrollmentID
     JOIN Assessment a ON a.AssessmentID = g.AssessmentID
     WHERE e.StudentID = p_StudentID
-    ORDER BY e.Semester, c.CourseCode, a.AssessmentType;
-END //
-DELIMITER ;
+    GROUP BY e.EnrollmentID, c.CourseCode, c.CourseTitle, c.CreditHours, e.Semester, e.EnrollmentStatus
+    ORDER BY e.Semester, c.CourseCode;
+END//
 
 
-
-
+GRANT EXECUTE ON PROCEDURE Group11_FinalProject.sp_GetStudentTranscript TO student;
+GRANT EXECUTE ON FUNCTION Group11_FinalProject.fn_GPA TO student;
 
 
 
@@ -412,7 +414,42 @@ BEGIN
 END //
 DELIMITER ;
 
+-- Additional User-Defined Function: Calculates a Student's GPA
+DELIMITER //
+CREATE FUNCTION fn_GPA(p_StudentID INT)
+RETURNS DECIMAL(3,2)
+DETERMINISTIC
+READS SQL DATA
+BEGIN
+    DECLARE v_GPA DECIMAL(3,2);
 
+    SELECT ROUND(SUM(grade_points * CreditHours) / SUM(CreditHours), 2)
+    INTO v_GPA
+    FROM (
+        SELECT
+            c.CreditHours,
+            CASE
+                WHEN ROUND(SUM((g.ScoreObtained / a.MaxScore) * a.WeightPercent), 2) >= 90 THEN 4.0
+                WHEN ROUND(SUM((g.ScoreObtained / a.MaxScore) * a.WeightPercent), 2) >= 85 THEN 4.0
+                WHEN ROUND(SUM((g.ScoreObtained / a.MaxScore) * a.WeightPercent), 2) >= 80 THEN 3.5
+                WHEN ROUND(SUM((g.ScoreObtained / a.MaxScore) * a.WeightPercent), 2) >= 75 THEN 3.0
+                WHEN ROUND(SUM((g.ScoreObtained / a.MaxScore) * a.WeightPercent), 2) >= 70 THEN 2.5
+                WHEN ROUND(SUM((g.ScoreObtained / a.MaxScore) * a.WeightPercent), 2) >= 65 THEN 2.0
+                WHEN ROUND(SUM((g.ScoreObtained / a.MaxScore) * a.WeightPercent), 2) >= 60 THEN 1.5
+                WHEN ROUND(SUM((g.ScoreObtained / a.MaxScore) * a.WeightPercent), 2) >= 55 THEN 1.0
+                ELSE 0.0
+            END AS grade_points
+        FROM Enrollment e
+        JOIN Course c ON c.CourseID = e.CourseID
+        JOIN Grade g ON g.EnrollmentID = e.EnrollmentID
+        JOIN Assessment a ON a.AssessmentID = g.AssessmentID
+        WHERE e.StudentID = p_StudentID
+        GROUP BY e.EnrollmentID, c.CreditHours
+    ) AS course_grades;
+
+    RETURN IFNULL(v_GPA, 0.00);
+END//
+DELIMITER ;
 
 
 -- 3 Triggers

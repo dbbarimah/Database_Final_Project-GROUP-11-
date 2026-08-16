@@ -132,7 +132,7 @@ def my_transcript():
         if student is None:
             flash("Profile not found.", "warning")
             return redirect(url_for("dashboard.index"))
-        cur.execute("SELECT * FROM v_my_grades ORDER BY Semester, CourseCode")
+        cur.callproc("sp_GetStudentTranscript", (student["StudentID"],))
         rows = cur.fetchall()
     return render_template("student/transcript.html", student=student, rows=rows, letter_grade=letter_grade, is_own=True)
 
